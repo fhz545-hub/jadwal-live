@@ -12,8 +12,8 @@
 
   <style>
     :root{
-      --moe-green:#1a9c77; --moe-ink:#0f3d33; --light:#f7faf9; --line:#e6efec;
-      --first:#0ea5a3; --second:#6aa84f; --third:#3f83f8;
+      --moe-green:#18a27e; --moe-ink:#0f3d33; --light:#f9fefb; --line:#e7f2ee;
+      --first:#0fb3b0; --second:#7bc35b; --third:#4a8fff;
       --danger-bg:#fdecec; --danger-border:#f5c2c2; --danger-ink:#8a1f1f;
       --chip:#f3fbf8; --chip-border:#cfe8e1; --ink:#0b4035;
       --ctl-bg:#ffffff; --ctl-border:#e4efec;
@@ -21,24 +21,29 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:var(--light);color:#111;font-family:"Tajawal",system-ui}
+    body{
+      margin:0;color:#111;font-family:"Tajawal",system-ui;
+      background:
+        radial-gradient(1200px 600px at 10% 0%, #ffffff 0%, #f2fffa 100%),
+        linear-gradient(180deg,#f9fff9 0%, #f4fffa 100%);
+    }
 
     /* ===== الهيدر ===== */
     header{position:sticky;top:0;z-index:60;background:linear-gradient(90deg,var(--moe-green),#27b394);color:#fff;border-bottom:4px solid #0d5e49}
     .h-wrap{max-width:1500px;margin:0 auto;padding:10px 16px}
     .h-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .title{font-family:"Cairo";font-size:20px;font-weight:800;letter-spacing:.3px}
-    .clock{font-family:"Cairo";font-weight:800;font-size:32px;background:transparent;color:#fff;min-width:128px;text-align:center;letter-spacing:.5px}
-    .dateweek{font-size:16px;font-weight:800;color:#eafff7;margin-top:6px}
+    .clock{font-family:"Cairo";font-weight:800;font-size:clamp(22px,3.4vw,32px);background:transparent;color:#fff;min-width:128px;text-align:center;letter-spacing:.5px}
+    .dateweek{font-size:14px;font-weight:800;color:#eafff7;margin-top:6px}
 
-    main{max-width:1500px;margin:0 auto;padding:10px 14px 72px} /* مسافة للتذييل */
+    main{max-width:1500px;margin:0 auto;padding:10px 14px 80px}
 
     /* ===== أيقونات عليا ===== */
     .hero{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0 10px;text-align:center}
     .iconbar{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
-    .ib{width:38px;height:38px;border-radius:12px;background:#ffffff;display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e7e3;box-shadow:0 2px 8px #00000010;cursor:pointer;position:relative}
+    .ib{width:38px;height:38px;border-radius:12px;background:#ffffffcc;backdrop-filter:blur(4px);display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e7e3;box-shadow:0 2px 10px #00000010;cursor:pointer;position:relative;transition:.2s}
     .ib[disabled]{opacity:.5;cursor:not-allowed}
-    .ib:hover{background:#f6fbf9}
+    .ib:hover{transform:translateY(-1px);background:#f6fbf9}
     .ib svg{width:20px;height:20px;color:#0b534a}
     .menu{position:absolute;top:44px;right:0;min-width:460px;background:#fff;border:1px solid #dceae7;border-radius:12px;box-shadow:0 12px 30px #00000014;padding:10px;display:none;z-index:90}
     .menu.open{display:block}
@@ -51,34 +56,50 @@
     .lock-badge{font-size:11px;background:#fff;border:1px solid #e6efec;color:#0b4035;border-radius:999px;padding:2px 8px;margin-right:6px}
 
     /* ===== البطاقة الرئيسية ===== */
-    .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 14px #00000010;padding:12px}
+    .card{
+      background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;
+      box-shadow:0 6px 24px #28a48a22, 0 2px 10px #00000010;
+    }
 
-    /* أخفينا عنوان "لوحة الشعب حسب الوقت" ورفعنا الجداول */
     .bigTitle{display:none}
 
     /* ===== مصفوفة: لوحة الشعب + عمود المناوبين/المشرفين ===== */
-    .board{display:grid;grid-template-columns:1fr 480px;gap:8px;align-items:start}
+    /* رجعنا عرض عمود المناوبة للصيغة السابقة (أضيق) */
+    .board{display:grid;grid-template-columns:1fr 480px;gap:10px;align-items:start}
     @media (max-width:1200px){ .board{grid-template-columns:1fr} }
 
     /* ===== لوحات الشعب ===== */
     .band-wrap{margin-top:6px}
     .bandTitle{font-weight:800;font-size:16px;margin:8px 0 4px;display:flex;align-items:center;gap:6px}
     .bandTitle .dot{width:10px;height:10px;border-radius:999px}
-    .band{display:grid;gap:10px;padding:6px 4px;overflow:visible}
-    .band.first{--accent:var(--first);grid-template-columns:repeat(5, minmax(0,1fr))}
-    .band.second{--accent:var(--second);grid-template-columns:repeat(5, minmax(0,1fr))}
-    .band.third{--accent:var(--third);grid-template-columns:repeat(5, minmax(0,1fr))}
+    .band{
+      display:grid;gap:12px;padding:8px 4px;overflow:visible;
+      grid-template-columns:repeat(5, minmax(220px,1fr));
+    }
+    @media (max-width:1100px){ .band{grid-template-columns:repeat(4,minmax(200px,1fr))} }
+    @media (max-width:900px){ .band{grid-template-columns:repeat(2,minmax(200px,1fr))} }
+    @media (max-width:520px){ .band{grid-template-columns:repeat(1,minmax(220px,1fr))} }
+
+    .band.first{--accent:var(--first)}
+    .band.second{--accent:var(--second)}
+    .band.third{--accent:var(--third)}
     .band .tile{border-top:4px solid var(--accent)}
+
     .bandTitle.first .dot{background:var(--first)}
     .bandTitle.second .dot{background:var(--second)}
     .bandTitle.third .dot{background:var(--third)}
 
-    .tile{position:relative;background:#fff;border:1px solid #e0ece9;border-radius:16px;padding:10px;min-height:136px;overflow:hidden}
+    .tile{
+      position:relative;background:linear-gradient(180deg,#ffffff 0%,#fbfffd 100%);
+      border:1px solid #e0ece9;border-radius:16px;padding:12px;min-height:148px;overflow:hidden;
+      box-shadow:0 6px 16px #0000000e; transition:.2s;
+    }
+    .tile:hover{transform:translateY(-1px); box-shadow:0 10px 20px #00000012}
     .badge{position:absolute;top:8px;left:8px;background:#e6fbf5;color:#0b534a;border:1px solid #bde7dc;padding:1px 8px;border-radius:999px;font-size:11px}
-    .section{font-weight:800;color:#0b4035;font-size:15px;margin-bottom:6px}
-    .subject{font-size:14px;color:#123}
-    .teacher{font-size:12px;color:#345;margin-top:4px}
-    .room{font-size:12px;color:#5a7;margin-top:2px}
+    .section{font-weight:800;color:#0b4035;font-size:15px;margin-bottom:8px;text-align:center}
+    .subject{font-size:15px;color:#113;text-align:center}
+    .teacher{font-size:13px;color:#345;margin-top:6px;text-align:center}
+    .room{font-size:12px;color:#5a7;margin-top:2px;text-align:center}
     .state{position:absolute;bottom:8px;left:8px;font-size:11px;color:#0b534a}
     .empty{color:#7b8;font-style:italic}
 
@@ -99,34 +120,71 @@
     .tile.absent .badge{background:#fff0f0;color:var(--danger-ink);border-color:var(--danger-border)}
     .chip{display:inline-block;background:#fff;border:1px solid #e6efec;border-radius:999px;padding:2px 8px;font-size:11px;margin-top:4px}
 
-    /* ===== مؤشر البطارية داخل فراغ (أول ثانوي) بجوار "أول-7" ===== */
-    .mid-indicator{grid-column:3 / span 3; display:flex; align-items:center; justify-content:center}
-    .mid-card{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#fff;border:1px solid #e0ece9;border-top:4px solid var(--first);border-radius:14px;padding:10px 12px;box-shadow:0 6px 16px #0000000f;min-width:320px}
-    .mid-title{font-weight:800;color:#0b4035}
-    .mid-sub{font-size:12px;color:#345}
-    .bat{display:flex;align-items:center;gap:10px}
-    .bat-shell{position:relative;width:280px;max-width:46vw;height:18px;border:2px solid #0b534a;border-radius:8px;overflow:hidden;background:linear-gradient(90deg,#fefefe,#f5fffb)}
-    .bat-shell::after{content:"";position:absolute;right:-8px;top:3px;width:6px;height:12px;border:2px solid #0b534a;border-left:none;border-radius:0 6px 6px 0;background:#fff}
-    .bat-fill{height:100%;width:0%;transition:width .7s ease; background:linear-gradient(90deg,#e65353,#ffd24d,#53c77a)}
-    .bat-num{font-family:"Cairo";font-weight:900;font-size:18px;letter-spacing:.3px;color:#0b4035;min-width:86px;text-align:center}
-    .flip{animation:flip .6s ease}
-    @keyframes flip {0%{transform:rotateX(0)}50%{transform:rotateX(180deg)}100%{transform:rotateX(360deg)}}
+    /* ===== مؤشر البطارية ===== *//* ===== موضع المؤشر بين أول/ثاني: تحت (أول ثالث/رابع/خامس) وفوق صف ثاني ===== */
+#band_first .mid-indicator{
+  /* شبكة أول ثانوي: ضع المؤشر في الصف الثاني والأعمدة 3–5 */
+  grid-column: 3 / span 3;   /* تحت "أول ثالث/رابع/خامس" */
+  grid-row: 2;               /* نفس صف "أول-6/7" لكن في الأعمدة الفارغة */
+  justify-self: center;      /* يتوسّط أفقيًا ضمن هذا النطاق */
+  align-self: center;        /* تمركز رأسي داخل صفّه */
+  display:flex; align-items:center; justify-content:center;
+  margin: 6px 0 12px;        /* مسافة لطيفة فوق/تحت */
+}
 
-    /* ===== عمود المناوبين/المشرفين (إطار أحمر علوي + مسافة مريحة) ===== */
-    .duty-card{position:sticky; top:58px; background:var(--ctl-bg); border:1px solid var(--ctl-border); border-top:4px solid var(--duty-accent); border-radius:16px; box-shadow:0 4px 14px #00000010; padding:12px}
-    .duty-title{margin:0 0 6px; font-size:14px; color:var(--ink); font-weight:800}
-    .phase-pill{display:inline-block;border:1px dashed #dfe9e6;background:#f8fcfb;border-radius:999px;padding:2px 8px;font-size:11px;color:#0b4035}
-    .duty-tools{display:flex; gap:6px; flex-wrap:wrap; margin:8px 0}
-    .duty-tools .btn-ghost{font-size:11px;padding:4px 8px}
-    .duty-row{display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; border:1px solid #edf3f2; border-radius:10px; padding:6px 8px; margin-bottom:10px; background:#fff; font-size:13px; line-height:1.8}
-    .duty-name input{width:100%; border:1px solid #e6efec; border-radius:8px; padding:6px 8px; font-size:13px}
-    .duty-actions{display:flex; gap:6px}
-    .mini{display:inline-flex; align-items:center; gap:4px; border:1px solid #e6efec; background:#fff; padding:6px 8px; border-radius:999px; font-size:12px; cursor:pointer}
+/* على الشاشات الصغيرة: يمتد بعرض الشبكة ويتمركز */
+@media (max-width:900px){
+  #band_first .mid-indicator{
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+/* مظهر بطاقة المؤشر (كما هو) */
+.mid-card{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;
+  background:#fff;border:1px solid #e0ece9;border-top:4px solid var(--first);
+  border-radius:14px;padding:10px 12px;box-shadow:0 6px 16px #0000000f;min-width:320px
+}
+.mid-title{font-weight:800;color:#0b4035}
+.mid-sub{font-size:12px;color:#345}
+.bat{display:flex;align-items:center;gap:10px}
+.bat-shell{position:relative;width:280px;max-width:60vw;height:18px;border:2px solid #0b534a;border-radius:8px;overflow:hidden;background:linear-gradient(90deg,#fefefe,#f5fffb)}
+.bat-shell::after{content:"";position:absolute;right:-8px;top:3px;width:6px;height:12px;border:2px solid #0b534a;border-left:none;border-radius:0 6px 6px 0;background:#fff}
+.bat-fill{height:100%;width:0%;transition:width .7s ease; background:linear-gradient(90deg,#e65353,#ffd24d,#53c77a)}
+.bat-num{font-family:"Cairo";font-weight:900;font-size:18px;letter-spacing:.3px;color:#0b4035;min-width:86px;text-align:center}
+.flip{animation:flip .6s ease}
+@keyframes flip {0%{transform:rotateX(0)}50%{transform:rotateX(180deg)}100%{transform:rotateX(360deg)}}
+
+    /* ===== عمود المناوبين/المشرفين (أضيق + يمتد رأسيًا) ===== */
+    .duty-card{
+      position:sticky; top:60px; background:var(--ctl-bg); border:1px solid var(--ctl-border);
+      border-top:4px solid var(--duty-accent); border-radius:16px; padding:12px;
+      box-shadow:0 6px 22px #ff5a5a14, 0 2px 10px #0000000d;
+      width:100%;
+    }
+    .duty-title{margin:0 0 6px; font-size:15px; color:var(--ink); font-weight:800}
+    .phase-pill{display:inline-block;border:1px dashed #dfe9e6;background:#f8fcfb;border-radius:999px;padding:3px 10px;font-size:12px;color:#0b4035}
+    .duty-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 8px}
+    .duty-tools .btn-ghost{font-size:12px;padding:6px 10px}
+
+    /* صفوف أوسع ومتباعدة بدون تداخل */
+    .duty-row{
+      display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center;
+      border:1px solid #edf3f2; border-radius:12px; padding:10px 12px; margin-bottom:10px;
+      background:linear-gradient(180deg,#ffffff 0%,#f9fffc 100%); font-size:14px; line-height:1.9
+    }
+    .duty-name input{width:100%; border:1px solid #e6efec; border-radius:10px; padding:8px 10px; font-size:14px}
+    .duty-actions{display:flex; gap:8px}
+    .mini{display:inline-flex; align-items:center; gap:4px; border:1px solid #e6efec; background:#fff; padding:7px 10px; border-radius:999px; font-size:12px; cursor:pointer}
     .mini:hover{background:#f9fcfb}
 
-    /* ===== تذييل أخضر مصغّر ===== */
+    @media (max-width:1200px){
+      .duty-card{position:static; min-height:auto; margin-top:12px}
+    }
+
+    /* ===== تذييل ===== */
     .ft{position:fixed;bottom:0;left:0;right:0;z-index:70;background:linear-gradient(90deg,#0e9a92,#1a9c77);border-top:3px solid #0d5e49;color:#fff}
-    .ft-inner{max-width:1500px;margin:0 auto;padding:6px 10px;display:flex;justify-content:center;align-items:center}
+    .ft-inner{max-width:1500px;margin:0 auto;padding:8px 10px;display:flex;justify-content:center;align-items:center}
     .ft-brand{font-size:12px;opacity:.95;text-align:center}
   </style>
 </head>
@@ -247,18 +305,18 @@
             <div class="band first" id="band_first"></div>
           </div>
 
-          <!-- لا نستخدم مؤشر سفلي — المؤشر داخل الفراغ بعد أول-7 -->
           <div id="wrap_second" class="band-wrap">
             <div class="bandTitle second"><span class="dot"></span> ثاني ثانوي (٥ شعب)</div>
             <div class="band second" id="band_second"></div>
           </div>
+
           <div id="wrap_third" class="band-wrap">
             <div class="bandTitle third"><span class="dot"></span> ثالث ثانوي (٥ شعب)</div>
             <div class="band third" id="band_third"></div>
           </div>
         </div>
 
-        <!-- B) عمود المناوبين/المشرفين (ثابت 7 أسماء أسبوعيًا حسب اليوم) -->
+        <!-- B) عمود المناوبين/المشرفين (أضيق + يمتد من حدود أول حتى نهاية ثالث) -->
         <aside id="dutyPanel" class="duty-card">
           <div class="duty-title">المناوبون والمشرفون لهذا اليوم</div>
           <div style="margin-bottom:6px"><span id="phaseLabel" class="phase-pill">—</span></div>
@@ -276,7 +334,7 @@
     </section>
   </main>
 
-  <!-- تذييل أخضر مصغّر -->
+  <!-- تذييل -->
   <footer class="ft">
     <div class="ft-inner">
       <div class="ft-brand">مبادرة اليعقوبي الثانوية — تنفيذ فهد حامد الزهراني</div>
@@ -297,7 +355,7 @@ function dayNameArabicFromDate(dt){return ['الأحد','الاثنين','الث
 function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${da}/${m}/${y}`}
 function fmtHijri(d){try{return new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'2-digit',month:'long',year:'numeric'}).format(d)}catch{return fmtDate(d)}}
 
-/* ===== أمان التحرير (رمز مدير ٦ أرقام) ===== */
+/* ===== أمان التحرير ===== */
 async function sha256(s){const enc=new TextEncoder().encode(s);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 let ADMIN_HASH = ls.get('smart_admin_hash','');
 let EDIT_ENABLED = ls.get('smart_edit_unlocked',false);
@@ -323,7 +381,7 @@ async function promptToggleEdit(){
   EDIT_ENABLED = !EDIT_ENABLED; ls.set('smart_edit_unlocked', EDIT_ENABLED); setLockUI();
 }
 
-/* ===== المواقيت (صيفي/شتوي) ===== */
+/* ===== المواقيت ===== */
 const PRESET_SUMMER={assm_s:'06:45',assm_e:'07:00',p1_s:'07:00',p1_e:'07:50',p2_s:'07:50',p2_e:'08:40',p3_s:'08:40',p3_e:'09:30',break_s:'09:30',break_e:'09:55',p4_s:'09:55',p4_e:'10:45',p5_s:'10:45',p5_e:'11:35',p6_s:'11:35',p6_e:'12:25',pr_s:'12:25',pr_e:'12:40',p7_s:'12:40',p7_e:'13:30'};
 const PRESET_WINTER={assm_s:'07:00',assm_e:'07:15',p1_s:'07:15',p1_e:'08:05',p2_s:'08:05',p2_e:'08:55',p3_s:'08:55',p3_e:'09:45',break_s:'09:45',break_e:'10:10',p4_s:'10:10',p4_e:'11:00',p5_s:'11:00',p5_e:'11:50',p6_s:'11:50',p6_e:'12:40',pr_s:'12:40',pr_e:'12:55',p7_s:'12:55',p7_e:'13:45'};
 const DEFAULT_TIMES=PRESET_SUMMER;
@@ -334,7 +392,7 @@ function parseHM(str){const [h,m]=String(str||'').split(':').map(x=>parseInt(x))
 function inRangeHM(now,s,e){const x=now.getHours()*60+now.getMinutes(), S=s.h*60+s.m, E=e.h*60+e.m; return x>=S && x<E}
 function hmToMin(s){const [H,M]=String(s||'0:0').split(':').map(Number); return (H||0)*60+(M||0);}
 
-/* ===== فواصل زمنية / تحديد الحصة الحالية ===== */
+/* ===== فواصل زمنية / الحصة الحالية ===== */
 function periodNameAr(n){return ['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة'][n-1]||''}
 function timeRangeOfPeriod(n){const map={1:['p1_s','p1_e'],2:['p2_s','p2_e'],3:['p3_s','p3_e'],4:['p4_s','p4_e'],5:['p5_s','p5_e'],6:['p6_s','p6_e'],7:['p7_s','p7_e']}; const k=map[n]; if(!k) return ''; return `${TIMES[k[0]]}–${TIMES[k[1]]}`}
 function currentSlot(dayName,now){
@@ -374,7 +432,7 @@ function refreshDatalists(){
   $('#subjectsList').innerHTML = (SUBJECTS||[]).map(n=>`<option value="${n}">`).join('');
 }
 
-/* رسم البلاطات + إدراج المؤشر داخل فراغ أول ثانوي */
+/* رسم البلاطات + المؤشر */
 function renderBands(){
   const mk=cls=>`<div class="tile" id="tile_${cls.classId}">
     <button class="abs-btn" data-class="${cls.classId}">غياب</button>
@@ -387,7 +445,6 @@ function renderBands(){
     <div class="state"></div>
   </div>`;
 
-  // أول ثانوي (٧) + المؤشر كعنصر شبكة بعد "أول-7" (يقع في الصف الثاني الأعمدة 3→5)
   const firstTiles = CLASSES.first.map(mk).join('') + `
     <div class="mid-indicator" id="midIndicator">
       <div class="mid-card">
@@ -403,11 +460,9 @@ function renderBands(){
     </div>`;
   $('#band_first').innerHTML=firstTiles;
 
-  // باقي المراحل
   $('#band_second').innerHTML=CLASSES.second.map(mk).join('');
   $('#band_third').innerHTML=CLASSES.third.map(mk).join('');
 
-  // أزرار
   $$('.abs-btn').forEach(b=>b.onclick=()=>EDIT_ENABLED?openAbsForm(b.dataset.class):alert('التحرير مقفول.'));
   $$('.edit-btn').forEach(b=>b.onclick=()=>EDIT_ENABLED?openEditForm(b.dataset.class):alert('التحرير مقفول.'));
 }
@@ -416,11 +471,14 @@ function findEntry(day,period,classId){return TIMETABLE.find(r=>r.day===day && N
 function absKey(day,period,classId){return `${day}|${period}|${classId}`;}
 function clearAbsence(day,period,classId){delete ABSENCES[absKey(day,period,classId)]; ls.set('smart_absences', ABSENCES); updateAll();}
 
+/* اسم مختصر للمعلم */
+function shortTeacher(name){return String(name||'').trim().split(/\s+/)[0]||'';}
+
 /* تحديث البلاطات */
 function updateTiles(dayName,now){
   const slot=currentSlot(dayName,now);
-  const groups=[...CLASSES.first,...CLASSES.second,...CLASSES.third];
-  groups.forEach(cls=>{
+  const classes=[...CLASSES.first,...CLASSES.second,...CLASSES.third];
+  classes.forEach(cls=>{
     const tile=$(`#tile_${cls.classId}`); if(!tile) return;
     const subEl=tile.querySelector('.subject'), tEl=tile.querySelector('.teacher'), rEl=tile.querySelector('.room'), sEl=tile.querySelector('.state');
     tile.classList.remove('absent'); tile.querySelectorAll('.chip,.abs-form,.edit-form,.abs-clear').forEach(n=>n.remove());
@@ -428,10 +486,18 @@ function updateTiles(dayName,now){
     if(slot.kind==='period'){
       const ent=findEntry(dayName, slot.period, cls.classId);
       const ab=ABSENCES[absKey(dayName,slot.period,cls.classId)];
-      if(ent){ subEl.textContent=ent.subject||'—'; subEl.classList.remove('empty'); tEl.textContent=ent.teacher?`المعلم: ${ent.teacher}`:''; rEl.textContent=ent.room?`قاعة: ${ent.room}`:''; }
-      else { subEl.textContent='— لا حصة —'; subEl.classList.add('empty'); tEl.textContent=''; rEl.textContent=''; }
+      if(ent){
+        subEl.textContent=ent.subject||'—'; subEl.classList.remove('empty');
+        if(String(ent.subject||'').includes('انتظار')){ tEl.textContent = shortTeacher(ent.teacher||''); }
+        else{ tEl.textContent = ent.teacher ? `${ent.teacher}` : ''; }
+        rEl.textContent=ent.room?`قاعة: ${ent.room}`:'';
+      } else {
+        subEl.textContent='— لا حصة —'; subEl.classList.add('empty'); tEl.textContent=''; rEl.textContent='';
+      }
       sEl.textContent=`الحصة ${toArabicDigits(slot.period)} — ${timeRangeOfPeriod(slot.period)}`;
-      if(ab){ tile.classList.add('absent');
+
+      if(ab){
+        tile.classList.add('absent');
         const c1=document.createElement('div'); c1.className='chip'; c1.textContent=`غياب: ${ab.absent||'—'}`;
         const c2=document.createElement('div'); c2.className='chip'; c2.textContent=`التغطية: ${ab.cover||'—'}`;
         sEl.insertAdjacentElement('beforebegin', c1); sEl.insertAdjacentElement('beforebegin', c2);
@@ -513,7 +579,7 @@ function openEditForm(classId){
   };
 }
 
-/* ===== عمود المناوبين/المشرفين ===== */
+/* ===== عمود المناوبة/الإشراف ===== */
 let DUTY_FIXED = ls.get('smart_duty_fixed', {}); // { 'الأحد': {names: ['','','',...]} }
 function ensureDutyFixed(day){
   DUTY_FIXED[day] ||= {names: Array(7).fill('')};
@@ -528,7 +594,7 @@ function currentDutyPhase(now=new Date()){
   const eBreak = hmToMin(TIMES.break_e);
   const sP6 = hmToMin(TIMES.p6_s);
   const sP7 = hmToMin(TIMES.p7_s);
-  const depEnd = 13*60 + 45; // 1:45 PM
+  const depEnd = 13*60 + 45;
   if(m>=390 && m<420) return {key:'morning', label:'المناوبة الصباحية', start:'06:30', end:'07:00'};
   if(m>=sBreak && m<eBreak) return {key:'break', label:'إشراف الفسحة', start:TIMES.break_s, end:TIMES.break_e};
   if(m>=sP6 && m<sP7) return {key:'prayer', label:'إشراف صلاة الظهر', start:TIMES.p6_s, end:TIMES.p7_s};
@@ -539,6 +605,7 @@ function renderDutyPanel(day){
   const state = ensureDutyFixed(day);
   const phase = currentDutyPhase(new Date());
   $('#phaseLabel').textContent = `${phase.label} ${phase.start && phase.end ? `(${phase.start}–${phase.end})` : ''}`;
+
   const rows = state.names.map((name,idx)=>`
     <div class="duty-row" data-idx="${idx}">
       <div class="duty-name">
@@ -558,35 +625,37 @@ function renderDutyPanel(day){
     inp.onchange = ()=>{
       const idx = parseInt(inp.closest('.duty-row').dataset.idx);
       state.names[idx] = inp.value.trim();
-      ls.set('smart_duty_fixed', DUTY_FIXED); // تُحفظ أسبوعيًا بحسب اليوم
+      ls.set('smart_duty_fixed', DUTY_FIXED);
       if(inp.value && !TEACHERS.includes(inp.value)){ TEACHERS.push(inp.value); ls.set('smart_teachers_list', TEACHERS); refreshDatalists(); }
     };
   });
   $$('#dutyList [data-up]').forEach(btn=>btn.onclick=()=>{
     if(!EDIT_ENABLED) return alert('التحرير مقفول.');
     const i=parseInt(btn.dataset.up); if(i<=0) return;
-    const a=state.names[i-1], b=state.names[i]; state.names[i-1]=b; state.names[i]=a;
+    [state.names[i-1],state.names[i]]=[state.names[i],state.names[i-1]];
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
   });
   $$('#dutyList [data-dn]').forEach(btn=>btn.onclick=()=>{
     if(!EDIT_ENABLED) return alert('التحرير مقفول.');
     const i=parseInt(btn.dataset.dn); if(i>=state.names.length-1) return;
-    const a=state.names[i+1], b=state.names[i]; state.names[i+1]=b; state.names[i]=a;
+    [state.names[i],state.names[i+1]]=[state.names[i+1],state.names[i]];
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
   });
   $$('#dutyList [data-clr]').forEach(btn=>btn.onclick=()=>{
     if(!EDIT_ENABLED) return alert('التحرير مقفول.');
-    const i=parseInt(btn.dataset.clr); state.names[i]='';
+    state.names[parseInt(btn.dataset.clr)]='';
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
   });
 
-  // واتساب: إن لم يوجد رقم، نطلبه ثم نحفظ ونرسل
+  // واتساب: معالجة عدم وجود رقم — نطلبه ونحفظه
   $$('#dutyList [data-wa]').forEach(btn=>btn.onclick=()=>{
-    const i=parseInt(btn.dataset.wa); const name=state.names[i]; if(!name) return alert('أدخل اسم المعلّم أولاً.');
+    const i=parseInt(btn.dataset.wa); const name=state.names[i];
+    if(!name) return alert('أدخل اسم المعلّم أولاً.');
     let rec = PHONEBOOK[name] || {};
     let phone = String(rec.phone||'').replace(/[^0-9]/g,'');
+
     if(!phone){
-      const inp = prompt('لا يوجد رقم لهذا المعلّم.\nأدخل رقم الجوال (مثال 9665XXXXXXXX):'); 
+      const inp = prompt('لا يوجد رقم لهذا المعلّم.\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):');
       if(!inp) return;
       const digits = String(inp).replace(/[^0-9]/g,'');
       if(digits.length<9){ alert('رقم غير صالح.'); return; }
@@ -594,18 +663,19 @@ function renderDutyPanel(day){
       PHONEBOOK[name] = {...rec, phone};
       ls.set('smart_phonebook', PHONEBOOK);
     }
+
     const now=new Date(); const dayName=dayNameArabicFromDate(now);
     const ph=currentDutyPhase(now);
     const msg=`السلام عليكم
 تذكير تكليف «${ph.label}»
-اليوم: ${dayName} — ${fmtDate(now)}
+اليوم: ${dayName} — ${fmtHijri(now)}
 الفترة: ${ph.start || '-'} ${ph.end? 'إلى '+ph.end : ''}
 جزاكم الله خيرًا على تعاونكم.`;
     const url=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
     window.open(url,'_blank');
   });
 
-  $('#dutySave').onclick = ()=>{ ls.set('smart_duty_fixed', DUTY_FIXED); alert('تم حفظ قائمة المناوبين/المشرفين لليوم (تحفظ أسبوعيًا حسب اليوم) ✔'); };
+  $('#dutySave').onclick = ()=>{ ls.set('smart_duty_fixed', DUTY_FIXED); alert('تم حفظ قائمة المناوبين/المشرفين لليوم ✔'); };
   $('#dutyClear').onclick = ()=>{
     if(!EDIT_ENABLED) return alert('التحرير مقفول.');
     DUTY_FIXED[day]={names:Array(7).fill('')}; ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
@@ -618,9 +688,55 @@ function renderDutyPanel(day){
     ls.set('smart_duty_fixed', DUTY_FIXED);
     renderDutyPanel(day);
   };
+
+  // محاذاة رأسياً: من أعلى "أول" إلى نهاية "ثالث"
+  alignDutyPanelToBands();
 }
 
-/* ===== Excel: استيراد الجدول (عريض) ===== */
+/* ===== مؤشر البطارية (حُدِّث موضعه) ===== */
+let _lastRem=null;
+function updateMidIndicator(dayName, now){
+  const elPhase=$('#mid-phase'), elRange=$('#mid-range'), elFill=$('#batFill'), elNum=$('#mid-num');
+  if(!(elPhase&&elRange&&elFill&&elNum)) return;
+  const slot=currentSlot(dayName, now);
+  if(slot.kind==='period'){
+    const sKey=`p${slot.period}_s`, eKey=`p${slot.period}_e`;
+    const startMin = hmToMin(TIMES[sKey]), endMin=hmToMin(TIMES[eKey]);
+    const total = Math.max(1, endMin-startMin);
+    const rem = minutesUntil(TIMES[eKey], now);
+    const gone = total - rem; const pct = Math.max(0, Math.min(100, Math.round(gone*100/total)));
+    elPhase.textContent = `الحصة ${periodNameAr(slot.period)}`;
+    elRange.textContent = `${TIMES[sKey]}–${TIMES[eKey]}`;
+    elFill.style.width = pct + '%';
+    const hue = Math.max(0, Math.min(120, Math.round(120 * (rem/total))));
+    elFill.style.background = `linear-gradient(90deg,hsl(${Math.max(hue-20,0)},75%,60%),hsl(${hue},70%,48%))`;
+    if(_lastRem===null || _lastRem!==rem){ elNum.classList.remove('flip'); void elNum.offsetWidth; elNum.classList.add('flip'); _lastRem=rem; }
+    elNum.textContent = String(rem);
+  }else{
+    const map={assembly:'👋 الاصطفاف',break:'☕️ فسحة',prayer:'🕌 صلاة',dismiss:'🏁 خارج الدوام'};
+    elPhase.textContent = map[slot.kind]||'—';
+    elRange.textContent = '—';
+    elFill.style.width = '0%';
+    elNum.textContent='--';
+    _lastRem=null;
+  }
+}
+
+/* ===== محاذاة عمود المناوبة مع لوحات الشعب رأسياً ===== */
+function alignDutyPanelToBands(){
+  const board=$('.board'), first=$('#wrap_first'), third=$('#wrap_third'), panel=$('#dutyPanel');
+  if(!(board && first && third && panel)) return;
+  const br = board.getBoundingClientRect();
+  const r1 = first.getBoundingClientRect();
+  const r3 = third.getBoundingClientRect();
+  const topOffset = r1.top - br.top;
+  const minH = (r3.top + r3.height) - r1.top;
+  panel.style.alignSelf='start';
+  panel.style.marginTop = `${Math.max(0, topOffset)}px`;
+  panel.style.minHeight = `${Math.max(320, Math.round(minH))}px`;
+}
+
+/* ===== Excel: استيراد الجدول ===== */
 function readWorkbookSmart(file, cb){
   const ext=(file.name.split('.').pop()||'').toLowerCase();
   const reader=new FileReader();
@@ -640,10 +756,19 @@ function readWorkbookSmart(file, cb){
 function cell(ws, r, c){ return ws[XLSX.utils.encode_cell({r,c})]?.v ?? ''; }
 function sheetSize(ws){ const ref=ws['!ref']; if(!ref) return {R:0,C:0,range:null}; const range=XLSX.utils.decode_range(ref); return {R:range.e.r+1, C:range.e.c+1, range}; }
 
-const DAY_CANDIDATES=['الأحد','الاحد','أحد','احد','Sun','Sunday','الاثنين','إثنين','اثنين','Mon','Monday','الثلاثاء','ثلاثاء','Tue','Tuesday','الأربعاء','اربعاء','Wed','Wednesday','الخميس','Thu','Thursday'];
-const DAY_CANON={'الأحد':'الأحد','الاحد':'الأحد','أحد':'الأحد','احد':'الأحد','sun':'الأحد','sunday':'الأحد','الاثنين':'الاثنين','إثنين':'الاثنين','اثنين':'الاثنين','mon':'الاثنين','monday':'الاثنين','الثلاثاء':'الثلاثاء','ثلاثاء':'الثلاثاء','tue':'الثلاثاء','tuesday':'الثلاثاء','الأربعاء':'الأربعاء','اربعاء':'الأربعاء','wed':'الأربعاء','wednesday':'الأربعاء','الخميس':'الخميس','thu':'الخميس','thursday':'الخميس'};
-function canonDay(v){ const s=String(v||'').trim(); const k=s.toLowerCase(); return DAY_CANON[k] || DAY_CANON[s] || s; }
-function looksPeriod(v){ const s=String(v||'').trim(); if(/^[1-7١-٧]$/.test(s)) return parseInt(s.replace(/[١-٧]/g,ch=>'1234567'['١٢٣٤٥٦٧'.indexOf(ch)])); const w=s.replace(/\s/g,''); const dict={'الأولى':1,'الاولى':1,'اولى':1,'الثانية':2,'الثالثة':3,'الرابعة':4,'الخامسة':5,'السادسة':6,'السابعة':7}; return dict[w]||NaN; }
+const DAY_CANON={'الأحد':'الأحد','الاحد':'الأحد','أحد':'الأحد','احد':'الأحد','sun':'الأحد','sunday':'الأحد',
+  'الاثنين':'الاثنين','إثنين':'الاثنين','اثنين':'الاثنين','mon':'الاثنين','monday':'الاثنين',
+  'الثلاثاء':'الثلاثاء','ثلاثاء':'الثلاثاء','tue':'الثلاثاء','tuesday':'الثلاثاء',
+  'الأربعاء':'الأربعاء','اربعاء':'الأربعاء','wed':'الأربعاء','wednesday':'الأربعاء',
+  'الخميس':'الخميس','thu':'الخميس','thursday':'الخميس'};
+function canonDay(v){ const s=String(v||'').trim(); const k=s.toLowerCase(); return DAY_CANON[k] || DAY_CANON[s] || ''; }
+function looksPeriod(v){
+  const s=String(v||'').trim();
+  if(/^[1-7١-٧]$/.test(s)) return parseInt(s.replace(/[١-٧]/g,ch=>'1234567'['١٢٣٤٥٦٧'.indexOf(ch)]));
+  const w=s.replace(/\s/g,'');
+  const dict={'الأولى':1,'الاولى':1,'اولى':1,'الثانية':2,'الثالثة':3,'الرابعة':4,'الخامسة':5,'السادسة':6,'السابعة':7};
+  return dict[w]||NaN;
+}
 function looksTimeRange(v){ const s=String(v||''); const m=s.match(/(\d{1,2}:\d{2}).*?(\d{1,2}:\d{2})/); return m? {start:m[1], end:m[2]} : null; }
 function normalizeClassId(v){
   v=String(v||'').trim().replace(/[–—]/g,'-').replace(/\s*-\s*/g,'-').replace(/اول/g,'أول');
@@ -661,10 +786,7 @@ function looksTeacher(s){
   if(/\s/.test(s) && !/[0-9]/.test(s) && s.length>=5) return true;
   return false;
 }
-function orderSubjectTeacher(a,b){
-  if(looksTeacher(a) && !looksTeacher(b)) return {subject:b, teacher:a};
-  return {subject:a, teacher:b};
-}
+function orderSubjectTeacher(a,b){ return (looksTeacher(a) && !looksTeacher(b)) ? {subject:b, teacher:a} : {subject:a, teacher:b}; }
 function splitCellToSubjectTeacher(val){
   let s=String(val||'').trim();
   if(!s) return {subject:'', teacher:''};
@@ -681,28 +803,36 @@ function splitCellToSubjectTeacher(val){
 function buildTimetableFromSheet(ws){
   const {R,C}=sheetSize(ws);
   if(R<3 || C<3) throw new Error('ورقة صغيرة جدًا');
-  const dayByCol = Array(C).fill(''); const perByCol = Array(C).fill(null); const timeByCol = Array(C).fill(null);
-  let lastDay='';
+
+  // تعرّف الأيام لكل عمود
+  const dayByCol = Array(C).fill(''); let lastDay='';
   for(let c=1;c<C;c++){
     const d0 = canonDay(cell(ws,0,c)), d1 = canonDay(cell(ws,1,c));
-    if(DAY_CANON[String(d0).toLowerCase()]) lastDay = d0;
-    else if(DAY_CANON[String(d1).toLowerCase()]) lastDay = d1;
+    if(d0) lastDay = d0;
+    else if(d1) lastDay = d1;
     dayByCol[c]=lastDay;
   }
-  let lastPer=1;
+
+  // تعرّف الحصص والمدى الزمني
+  const perByCol = Array(C).fill(null); const timeByCol = Array(C).fill(null); let lastPer=1;
   for(let c=1;c<C;c++){
     const v1 = cell(ws,1,c), p=looksPeriod(v1), tr=looksTimeRange(v1);
     if(!dayByCol[c]){ perByCol[c]=null; continue; }
     if(!dayByCol[c-1] || dayByCol[c]!==dayByCol[c-1]) lastPer=1;
-    if(!isNaN(p)){ perByCol[c]=p; lastPer=p; } else { perByCol[c]=lastPer; lastPer = lastPer>=7?7:lastPer+1; }
+    if(!isNaN(p)){ perByCol[c]=p; lastPer=p; } else { perByCol[c]=lastPer; lastPer = Math.min(7,lastPer+1); }
     if(tr) timeByCol[c]=tr;
   }
+
+  // تحديث المواقيت إذا وُجدت
   const trMap = {};
   for(let c=1;c<C;c++){ const p=perByCol[c], tr=timeByCol[c]; if(tr && p>=1 && p<=7) trMap[p]=tr; }
   if(Object.keys(trMap).length>=4){
-    const T={...TIMES}; for(const k in trMap){ const n=parseInt(k,10); T[`p${n}_s`]=trMap[k].start; T[`p${n}_e`]=trMap[k].end; }
-    ls.set('smart_times', TIMES=T); setTimeInputs();
+    for(const k in trMap){ const n=parseInt(k,10); TIMES[`p${n}_s`]=trMap[k].start; TIMES[`p${n}_e`]=trMap[k].end; }
+    ls.set('smart_times', TIMES);
+    setTimeInputs();
   }
+
+  // بناء الجدول
   const tt=[]; const foundTeachers = new Set(TEACHERS||[]); const foundSubjects = new Set(SUBJECTS||[]);
   for(let r=2;r<R;r++){
     const clsRaw = cell(ws,r,0); const classId = normalizeClassId(clsRaw);
@@ -719,11 +849,13 @@ function buildTimetableFromSheet(ws){
     }
   }
   if(tt.length===0) throw new Error('تعذّر التعرّف على الجدول.');
-  TIMETABLE = tt; TEACHERS=Array.from(foundTeachers); SUBJECTS=Array.from(foundSubjects);
+  TIMETABLE = tt;
+  TEACHERS=Array.from(foundTeachers); SUBJECTS=Array.from(foundSubjects);
   ls.set('smart_timetable', TIMETABLE); ls.set('smart_teachers_list', TEACHERS); ls.set('smart_subjects_list', SUBJECTS);
+  refreshDatalists();
 }
 
-/* ===== دفتر الهواتف (واتساب) ===== */
+/* ===== دفتر الهواتف ===== */
 function importPhonebookFromSheet(ws){
   const {R,C}=sheetSize(ws);
   const headers=[]; for(let c=0;c<C;c++) headers.push(String(cell(ws,0,c)||'').trim().toLowerCase());
@@ -748,55 +880,7 @@ function importPhonebookFromSheet(ws){
   refreshDatalists();
 }
 
-/* ===== مؤشر البطارية في فراغ أول ثانوي ===== */
-let _lastRem=null;
-function updateMidIndicator(dayName, now){
-  const elPhase=$('#mid-phase'), elRange=$('#mid-range'), elFill=$('#batFill'), elNum=$('#mid-num');
-  if(!(elPhase && elRange && elFill && elNum)) return;
-  const slot=currentSlot(dayName, now);
-  if(slot.kind==='period'){
-    const sKey=`p${slot.period}_s`, eKey=`p${slot.period}_e`;
-    const startMin = hmToMin(TIMES[sKey]), endMin=hmToMin(TIMES[eKey]);
-    const total = Math.max(1, endMin-startMin);
-    const rem = minutesUntil(TIMES[eKey], now);
-    const gone = Math.max(0, total - rem);
-    const pct = Math.max(0, Math.min(100, Math.round(gone*100/total)));
-    elPhase.textContent = `الحصة ${periodNameAr(slot.period)}`;
-    elRange.textContent = `${TIMES[sKey]}–${TIMES[eKey]}`;
-    elFill.style.width = pct + '%';
-    const hue = Math.max(0, Math.min(120, Math.round(120 * (rem/total)))); // 120 أخضر → 0 أحمر
-    elFill.style.background = `linear-gradient(90deg,hsl(${Math.max(hue-20,0)},75%,60%),hsl(${hue},70%,48%))`;
-    if(_lastRem===null || _lastRem!==rem){ elNum.classList.remove('flip'); void elNum.offsetWidth; elNum.classList.add('flip'); _lastRem=rem; }
-    elNum.textContent = String(rem);
-  }else{
-    const map={assembly:'👋 الاصطفاف',break:'☕️ فسحة',prayer:'🕌 صلاة',dismiss:'🏁 خارج الدوام'};
-    elPhase.textContent = map[slot.kind]||'—';
-    elRange.textContent = '—';
-    elFill.style.width = '0%';
-    elNum.textContent='--';
-    _lastRem=null;
-  }
-}
-
-/* ===== موازنة صندوق المناوبة مع فرق أول → ثاني ===== */
-function balanceDutyBox(){
-  const firstWrap = $('#wrap_first');
-  const secondWrap = $('#wrap_second');
-  const board = $('.board');
-  const panel = $('#dutyPanel');
-  if(!(firstWrap && secondWrap && board && panel)) return;
-  const br = board.getBoundingClientRect();
-  const r1 = firstWrap.getBoundingClientRect();
-  const r2 = secondWrap.getBoundingClientRect();
-  const top = r1.top - br.top;
-  const height = (r2.top + r2.height) - r1.top; // من أعلى أول إلى أسفل ثاني
-  panel.style.alignSelf = 'start';
-  panel.style.marginTop = `${Math.max(0, top)}px`;
-  panel.style.maxHeight = `${Math.max(320, Math.round(height))}px`;
-  panel.style.overflowY = 'auto';
-}
-
-/* ===== التحديث العام ===== */
+/* ===== تحديث عام ===== */
 let _lastPhaseKey='init';
 function updateAll(){
   const now=new Date();
@@ -805,10 +889,10 @@ function updateAll(){
   updateMidIndicator(day, now);
   const ph=currentDutyPhase(now).key;
   if(ph!==_lastPhaseKey){ _lastPhaseKey=ph; renderDutyPanel(day); }
-  balanceDutyBox();
+  alignDutyPanelToBands();
 }
 
-/* ===== الساعة + التاريخ الهجري ===== */
+/* ===== الساعة + التاريخ ===== */
 function pad2(n){return String(n).padStart(2,'0')}
 function updateClock(){
   const now=new Date();
@@ -818,16 +902,16 @@ function updateClock(){
   updateMidIndicator(day, now);
 }
 
-/* ===== القوائم المنسدلة للأيقونات ===== */
+/* ===== قوائم الأيقونات ===== */
 function wireMenus(){
   const pairs=[['btnLock','menuLock'],['btnImport','menuImport'],['btnTimes','menuTimes'],['btnWA','menuWA'],['btnCloud','menuCloud']];
   pairs.forEach(([b,m])=>{
     const btn=$('#'+b), menu=$('#'+m);
     if(!btn||!menu) return;
-    btn.onclick=(e)=>{ e.stopPropagation(); if(btn.hasAttribute('disabled')) return; closeAllMenus(menu); menu.classList.toggle('open'); };
+    btn.onclick=(e)=>{ e.stopPropagation(); if(btn.hasAttribute('disabled')) return; closeAll(menu); menu.classList.toggle('open'); };
   });
-  document.addEventListener('click', ()=>closeAllMenus());
-  function closeAllMenus(except){
+  document.addEventListener('click', ()=>closeAll());
+  function closeAll(except){
     ['menuLock','menuImport','menuTimes','menuWA','menuCloud'].forEach(id=>{
       if(except && except.id===id) return;
       const el=$('#'+id); if(el) el.classList.remove('open');
@@ -835,7 +919,7 @@ function wireMenus(){
   }
 }
 
-/* ===== أحداث الواجهة ===== */
+/* ===== ربط الواجهة ===== */
 function wireUI(){
   // قفل/فتح
   $('#setPin').onclick = ()=>promptSetPin();
@@ -860,8 +944,6 @@ function wireUI(){
       try{
         const ws = wb.Sheets[wb.SheetNames[0]];
         buildTimetableFromSheet(ws);
-        refreshDatalists();
-        renderBands(); // لإعادة إدراج المؤشر بعد إعادة رسم
         updateAll();
         alert('✅ تم استيراد الجدول وبناؤه: '+TIMETABLE.length+' سجل.');
       }catch(err){
@@ -911,34 +993,28 @@ function wireUI(){
         if(data.ABSENCES){ ABSENCES=data.ABSENCES; ls.set('smart_absences',ABSENCES); }
         if(data.DUTY_FIXED){ DUTY_FIXED=data.DUTY_FIXED; ls.set('smart_duty_fixed',DUTY_FIXED); }
         if(typeof data.EDIT_ENABLED==='boolean'){ EDIT_ENABLED=data.EDIT_ENABLED; ls.set('smart_edit_unlocked',EDIT_ENABLED); }
-        if(typeof data.ADMIN_HASH==='string'){ ADMIN_HASH=data.ADMIN_HASH; ls.set('smart_admin_hash',ADMIN_HASH); }
-        refreshDatalists();
-        renderBands();
-        renderDutyPanel(dayNameArabicFromDate(new Date()));
-        updateAll();
+        if(data.ADMIN_HASH){ ADMIN_HASH=data.ADMIN_HASH; ls.set('smart_admin_hash',ADMIN_HASH); }
+        refreshDatalists(); setLockUI(); updateAll();
         alert('✅ تم استعادة البيانات.');
-      }catch(err){
-        console.error(err);
-        alert('ملف JSON غير صالح.');
-      }
+      }catch(err){ console.error(err); alert('تعذّر قراءة الملف.'); }
     };
     reader.readAsText(f,'utf-8');
     ev.target.value='';
   });
 }
 
-/* إطلاق الواجهة */
+/* ===== تشغيل أولي ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
-  setLockUI();
   renderBands();
   refreshDatalists();
+  setLockUI();
   wireMenus();
   wireUI();
   updateAll();
   updateClock();
+  window.addEventListener('resize', alignDutyPanelToBands);
   setInterval(updateClock, 1000);
   setInterval(updateAll, 15000);
-  window.addEventListener('resize', balanceDutyBox);
 });
 </script>
 </body>
