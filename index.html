@@ -1,1 +1,739 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>جدول اليعقوبي الثانوية — عرض لحظي</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Cairo:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root{
+      --moe-green:#1a9c77; --moe-ink:#0f3d33; --light:#f7faf9; --line:#e6efec;
+      --first:#0ea5a3; --second:#6aa84f; --third:#3f83f8; --absent:#dc2626;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--light);color:#111;font-family:"Tajawal",system-ui}
+
+    .screen-only{display:block}
+    .print-only{display:none}
+
+    /* ===== الهيدر ===== */
+    header{position:sticky;top:0;z-index:50;background:linear-gradient(90deg,var(--moe-green),#27b394);color:#fff;border-bottom:4px solid #0d5e49}
+    .h-wrap{max-width:1500px;margin:0 auto;padding:12px 14px}
+    .h-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .title{font-family:"Cairo";font-weight:800;letter-spacing:.3px;font-size:clamp(16px,2.4vw,22px)}
+    .clock{font-family:"Cairo";font-weight:800;font-size:clamp(20px,3.6vw,36px);background:transparent;color:#fff;min-width:120px;text-align:center;letter-spacing:.5px}
+
+    main{max-width:1500px;margin:0 auto;padding:12px}
+
+    /* ===== العنوان الأوسط + الأيقونات ===== */
+    .hero{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:6px;margin-bottom:12px;text-align:center}
+    .hero .hero-title{font-family:"Cairo";font-size:clamp(18px,2.2vw,24px);font-weight:800;color:#0b4035}
+    .iconbar{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+    .ib{width:38px;height:38px;border-radius:12px;background:#ffffff;display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e7e3;box-shadow:0 2px 8px #00000010;cursor:pointer;position:relative}
+    .ib:hover{background:#f6fbfa}
+    .ib svg{width:20px;height:20px;color:#0b534a}
+    .menu{position:absolute;top:44px;right:0;min-width:280px;background:#fff;border:1px solid #dceae7;border-radius:12px;box-shadow:0 12px 30px #00000014;padding:8px;display:none;z-index:90}
+    .menu.open{display:block}
+    .menu h4{margin:4px 6px 8px;font-size:13px;color:#0b4035}
+    .menu .item{padding:8px 10px;border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer}
+    .menu .item:hover{background:#f3fbf8}
+    .menu .muted{font-size:12px;color:#567;margin:4px 8px}
+
+    .dateweek{font-size:clamp(14px,1.8vw,18px);font-weight:800;color:#0b4035}
+
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 14px #00000010;padding:16px}
+
+    /* صفوف المراحل */
+    .bandTitle{font-weight:800;font-size:16px;margin:8px 0 4px;display:flex;align-items:center;gap:6px}
+    .bandTitle .dot{width:10px;height:10px;border-radius:999px}
+    .band{display:flex;gap:8px;flex-wrap:wrap;padding:8px 4px;overflow:visible}
+    .band.first{--accent:var(--first)}
+    .band.second{--accent:var(--second)}
+    .band.third{--accent:var(--third)}
+    .band .tile{border-top:4px solid var(--accent)}
+    .bandTitle.first .dot{background:var(--first)}
+    .bandTitle.second .dot{background:var(--second)}
+    .bandTitle.third .dot{background:var(--third)}
+
+    /* قياسات البلاطات */
+    .band.first .tile{flex:0 0 160px}
+    .band.second .tile{flex:0 0 170px}
+    .band.third .tile{flex:0 0 170px}
+
+    .tile{position:relative;background:#fff;border:1px solid #e0ece9;border-radius:16px;padding:10px;min-height:112px;overflow:hidden}
+    .badge{position:absolute;top:8px;left:8px;background:#e6fbf5;color:#0b534a;border:1px solid #bde7dc;padding:1px 8px;border-radius:999px;font-size:11px}
+    .section{font-weight:800;color:#0b4035;font-size:15px;margin-bottom:4px}
+    .subject{font-size:14px;color:#123}
+    .teacher{font-size:12px;color:#345;margin-top:4px}
+    .room{font-size:12px;color:#5a7;margin-top:2px}
+    .state{position:absolute;bottom:8px;left:8px;font-size:11px;color:#0b534a}
+    .empty{color:#7b8;font-style:italic}
+
+    .tile.absent{background:#fdeaea;border-color:#f3b4b4}
+    .tile.absent .subject,.tile.absent .teacher{color:var(--absent)}
+    .tile.absent::after{content:'معلم غائب';position:absolute;top:8px;right:8px;background:#fee2e2;color:#b91c1c;border:1px solid #f3b4b4;padding:1px 8px;border-radius:999px;font-size:11px}
+
+    /* مربعات المناوبة/الإشراف الذكية */
+    .dutybox{flex:0 0 200px;border:1px dashed var(--line);border-top:4px solid var(--second);border-radius:16px;background:#f7fff9;padding:10px;min-height:112px;position:relative}
+    .dutybox h4{margin:0 0 6px;font-size:14px;color:#0b4035;display:flex;align-items:center;gap:6px}
+    .dutybox ul{margin:4px 0 0;padding-right:18px;font-size:12px;color:#0b4035}
+    .dutybox .wa{position:absolute;top:8px;left:8px;cursor:pointer;border:1px solid #cdebdc;background:#fff;border-radius:10px;padding:4px 6px;display:flex;align-items:center;gap:6px}
+    .dutybox .wa svg{width:16px;height:16px}
+
+    .bigTitle{font-family:"Cairo";font-size:22px;font-weight:800;color:#0b4035;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    .bigTitle .note{font-size:12px;color:#3b6}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #e6efec;padding:8px 10px;text-align:center;font-size:13px}
+    thead th{background:#f3fbf8;color:#0b4035}
+
+    /* استجابة للشاشات */
+    @media (max-width:1200px){
+      .band.first .tile{flex:1 1 calc(25% - 8px)}
+      .band.second .tile,.band.third .tile{flex:1 1 calc(25% - 8px)}
+      .dutybox{flex:1 1 calc(25% - 8px)}
+      .tile{min-height:108px}
+    }
+    @media (max-width:900px){
+      .band.first .tile,.band.second .tile,.band.third .tile,.dutybox{flex:1 1 calc(33.33% - 8px)}
+      .tile{min-height:104px}
+    }
+    @media (max-width:640px){
+      .band.first .tile,.band.second .tile,.band.third .tile,.dutybox{flex:1 1 calc(50% - 8px)}
+      .tile{min-height:100px}
+      .hero .iconbar{gap:6px}
+      .ib{width:36px;height:36px}
+      .ib svg{width:18px;height:18px}
+    }
+    @media (max-width:400px){
+      .band.first .tile,.band.second .tile,.band.third .tile,.dutybox{flex:1 1 100%}
+      .badge{font-size:10px}
+      .section{font-size:14px}
+      .subject{font-size:13px}
+    }
+
+    /* الطباعة: ورقة منفصلة للمناوبة/الإشراف */
+    @media print{
+      body{background:#fff}
+      .screen-only{display:none !important}
+      .print-only{display:block !important}
+      .print-sheet{page-break-after:always;padding:16px}
+      .print-sheet h2{margin:0 0 12px;font-family:"Cairo";color:#0b4035}
+      .print-grid{display:grid;grid-template-columns:1fr;gap:10px}
+      .print-card{border:1px solid #ddd;border-radius:12px;padding:12px}
+      .print-card h3{margin:0 0 8px}
+      table{font-size:12px}
+    }
+  </style>
+</head>
+<body>
+  <header class="screen-only">
+    <div class="h-wrap">
+      <div class="h-row">
+        <div class="title">جدول اليعقوبي الثانوية — عرض لحظي</div>
+        <div class="clock" id="clock">--:--:--</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- مُدخلات ملفات خفية -->
+  <input type="file" id="excelInput" accept=".xlsx,.xls,.xlsb,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+  <input type="file" id="teachersInput" accept=".xlsx,.xls,.xlsb,.csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+
+  <main class="screen-only">
+    <!-- العنوان الأوسط + الأيقونات + التاريخ/الأسبوع -->
+    <section class="hero">
+      <div class="hero-title" id="heroNow">الآن — عرض الحِصص حسب الوقت لجميع الشعب (١٧)</div>
+      <div class="iconbar">
+        <!-- أيقونة استيراد الجدول + قائمة مبتكرة -->
+        <div class="ib" id="btnImportTable" title="استيراد الجدول (Excel/CSV)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+          <div class="menu" id="menuImportTable">
+            <h4>استيراد الجدول العام</h4>
+            <div class="item" id="mi_table_upload">⬆️ رفع ملف (Excel/CSV)</div>
+            <div class="item" id="mi_table_template">⬇️ تنزيل قالب CSV للجدول</div>
+            <div class="muted" id="tableStats">— لم يتم الاستيراد بعد</div>
+          </div>
+        </div>
+
+        <!-- أيقونة استيراد المعلمين + قائمة مبتكرة -->
+        <div class="ib" id="btnImportTeachers" title="استيراد بيانات المعلمين/المناوبة (Excel/CSV)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-3-3.87"/><path d="M4 21v-2a4 4 0 0 1 3-3.87"/><circle cx="12" cy="7" r="4"/></svg>
+          <div class="menu" id="menuImportTeachers">
+            <h4>استيراد المعلمين والمناوبة</h4>
+            <div class="item" id="mi_teachers_upload">⬆️ رفع ملف (Excel/CSV)</div>
+            <div class="item" id="mi_teachers_template">⬇️ قالب CSV للمعلمين</div>
+            <div class="item" id="mi_duty_template">⬇️ قالب CSV للمناوبة/الإشراف</div>
+            <div class="muted" id="teachersStats">— لم يتم الاستيراد بعد</div>
+          </div>
+        </div>
+
+        <!-- مواقيت الحصص كأيقونة منسدلة -->
+        <div class="ib" id="btnTimes" title="مواقيت الحصص">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div class="menu" id="timesMenu">
+            <h4>مواقيت الحصص (قابلة للتعديل)</h4>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+              <label>الاصطفاف (بدء)<input type="time" id="t_assm_s"></label>
+              <label>الاصطفاف (نهاية)<input type="time" id="t_assm_e"></label>
+              <label>الحصة 1 (بدء)<input type="time" id="t_p1_s"></label>
+              <label>الحصة 1 (نهاية)<input type="time" id="t_p1_e"></label>
+              <label>الحصة 2 (بدء)<input type="time" id="t_p2_s"></label>
+              <label>الحصة 2 (نهاية)<input type="time" id="t_p2_e"></label>
+              <label>الحصة 3 (بدء)<input type="time" id="t_p3_s"></label>
+              <label>الحصة 3 (نهاية)<input type="time" id="t_p3_e"></label>
+              <label>الفسحة (بدء)<input type="time" id="t_break_s"></label>
+              <label>الفسحة (نهاية)<input type="time" id="t_break_e"></label>
+              <label>الحصة 4 (بدء)<input type="time" id="t_p4_s"></label>
+              <label>الحصة 4 (نهاية)<input type="time" id="t_p4_e"></label>
+              <label>الحصة 5 (بدء)<input type="time" id="t_p5_s"></label>
+              <label>الحصة 5 (نهاية)<input type="time" id="t_p5_e"></label>
+              <label>السادسة (بدء)<input type="time" id="t_p6_s"></label>
+              <label>السادسة (نهاية)<input type="time" id="t_p6_e"></label>
+              <label>فاصل صلاة (بدء)<input type="time" id="t_pr_s"></label>
+              <label>فاصل صلاة (نهاية)<input type="time" id="t_pr_e"></label>
+              <label>السابعة (بدء)<input type="time" id="t_p7_s"></label>
+              <label>السابعة (نهاية)<input type="time" id="t_p7_e"></label>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="ib" id="btnDefaults" style="width:auto;height:auto;padding:6px 10px">استرجاع الافتراضي</button>
+              <button class="ib" id="btnSaveTimes" style="width:auto;height:auto;padding:6px 10px">حفظ المواقيت</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- واتساب عام -->
+        <div class="ib" id="btnWA" title="رسالة واتساب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.94 11.94 0 0 0 12.06 0C5.4 0 0 5.4 0 12.06c0 2.12.56 4.16 1.62 5.96L0 24l6.16-1.6a12.02 12.02 0 0 0 5.9 1.54h.01c6.66 0 12.06-5.4 12.06-12.06 0-3.23-1.26-6.26-3.48-8.48Zm-8.46 18.04h-.01a10.3 10.3 0 0 1-5.24-1.44l-.38-.22-3.66.95.98-3.56-.25-.37a10.31 10.31 0 1 1 8.56 4.64ZM17 14.2c-.28-.14-1.64-.8-1.9-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.9 1.08-.17.19-.33.21-.61.07-.28-.14-1.18-.44-2.26-1.4-.84-.75-1.41-1.68-1.57-1.96-.17-.28-.02-.43.12-.57.12-.12.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.55-.88-2.12-.23-.56-.47-.48-.64-.49-.16-.01-.35-.01-.54-.01-.19 0-.49.07-.75.35-.26.28-1 1-1 2.43 0 1.43 1.02 2.81 1.16 3 .14.19 2 3.05 4.85 4.28.68.29 1.21.46 1.62.58.68.22 1.3.19 1.79.12.55-.08 1.64-.67 1.87-1.32.23-.65.23-1.21.16-1.32-.07-.11-.26-.18-.54-.32Z"/></svg></div>
+
+        <!-- طباعة (تُظهر ورقة المناوبة المنفصلة) -->
+        <div class="ib" id="btnPrint" title="طباعة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1 2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="2"/></svg></div>
+      </div>
+      <div class="dateweek" id="dateWeek">—</div>
+    </section>
+
+    <!-- اللوحة الرئيسة: عرض مجمّع حسب المرحلة -->
+    <section class="card">
+      <div class="bigTitle">
+        <div>لوحة الشعب حسب الوقت</div>
+        <div class="note" id="nowSummary"></div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="bandTitle first"><span class="dot"></span> أول ثانوي (٧ شعب)</div>
+        <div class="band first" id="band_first"></div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="bandTitle second"><span class="dot"></span> ثاني ثانوي (٥ شعب)</div>
+        <div class="band second" id="band_second"></div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="bandTitle third"><span class="dot"></span> ثالث ثانوي (٥ شعب)</div>
+        <div class="band third" id="band_third"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ورقة الطباعة المنفصلة للمناوبة/الإشراف -->
+  <section id="printDuty" class="print-only">
+    <div class="print-sheet">
+      <h2>قائمة المناوبة والإشراف — أسبوع كامل</h2>
+      <div id="printDutyWrap" class="print-grid"></div>
+    </div>
+  </section>
+
+<script>
+/* ============== أدوات عامة ============== */
+const $ = s=>document.querySelector(s), $$ = s=>Array.from(document.querySelectorAll(s));
+const ls = { get(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))}, del(k){localStorage.removeItem(k)} };
+function toArabicDigits(str){return String(str).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);}
+function parseArabicInt(s){ if(s==null) return null; const map={'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'}; return parseInt(String(s).replace(/[٠-٩]/g,ch=>map[ch]).replace(/[^0-9]/g,'').trim()||"0"); }
+const DAYS_AR=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+function dayNameArabicFromDate(dt){return ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][dt.getDay()]||'الأحد'}
+function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${da}/${m}/${y}`}
+function stripTashkeel(s){return String(s||'').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g,'');}
+function normalizeArabicBasic(s){
+  s=String(s||'').trim();
+  return stripTashkeel(s)
+    .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ|ئ/g,'ء').replace(/ـ/g,'')
+    .split(/[ _\-\/\\]/g).join('').toLowerCase();
+}
+
+/* —— مرادفات الأعمدة —— */
+const COLMAP={
+  day:['اليوم','اليومالدراسي','day','weekday','Day'],
+  period:['الحصه','الحصة','رقمالحصه','period','p','Period'],
+  grade:['الصف','المرحله','grade','المستوى','صف','Grade'],
+  section:['الشعبه','الشعبة','الفصل','section','class','شعبه','Section'],
+  subject:['الماده','المادة','subject','الوصف','نوعالحصه','Subject'],
+  teacher:['المعلم','المعلم/teacher','المعلمون','اسمالمعلم','teacher','اسماءالمعلمين','Teacher'],
+  room:['القاعة','القاعه','الغرفة','room','classroom','Room'],
+  phone:['الجوال','الهاتف','رقم','phone','mobile','whatsapp','Mobile'],
+  waitNo:['رقمالانتظار','انتظارنمره','priority','wait','waitno','احتياطرقم','Priority']
+};
+function matchColumn(headers,wanted){
+  const want=(wanted||[]).map(normalizeArabicBasic);
+  for(let i=0;i<headers.length;i++){
+    const h=normalizeArabicBasic(headers[i]||'');
+    if(want.includes(h)) return i;
+    if(want.some(w=>h.includes(w))) return i;
+  }
+  return -1;
+}
+
+/* —— تحويل اليوم/الحصة/الشعبة —— */
+function canonicalDay(s){
+  const n=normalizeArabicBasic(s);
+  if(!n) return '';
+  if(n.includes('احد')) return 'الأحد';
+  if(n.includes('اثنين')||n.includes('اتنين')) return 'الاثنين';
+  if(n.includes('ثلاث')) return 'الثلاثاء';
+  if(n.includes('اربع')) return 'الأربعاء';
+  if(n.includes('خميس')) return 'الخميس';
+  return '';
+}
+function parsePeriod(v){
+  if(v==null) return NaN;
+  const s=normalizeArabicBasic(v);
+  const n=parseArabicInt(v);
+  if(!isNaN(n)&&n>=1&&n<=7) return n;
+  const map={'الاولى':1,'اولى':1,'الحصهالاولى':1,'الثانيه':2,'الثالثه':3,'الرابعه':4,'الخامسه':5,'السادسه':6,'السابعه':7};
+  for(const k in map){ if(s.includes(k)) return map[k]; }
+  return NaN;
+}
+function sectionToNumber(v){
+  let s=String(v||'').trim();
+  const ar={'أ':1,'ا':1,'ب':2,'ج':3,'د':4,'هـ':5,'ه':5,'و':6,'ز':7};
+  if(ar[s]!=null) return String(ar[s]);
+  const n=parseArabicInt(s);
+  return isNaN(n)?s:String(n);
+}
+function normalizeGrade(g){
+  if(!g) return '';
+  g=String(g).trim();
+  const pairs=[[/(^أول|^اول|^1|first)/i,'أول'],[/^(ثان[ي|ى]|2|second)/i,'ثاني'],[/^(ثال?ث|3|third)/i,'ثالث']];
+  for(const [re,val] of pairs){if(re.test(g)) return val}
+  return g
+}
+function normalizeSection(s){ return sectionToNumber(s); }
+function makeClassId(grade,section){return `${normalizeGrade(grade)}-${normalizeSection(section)}`}
+
+/* ============== بيانات ============== */
+let TIMETABLE=[]; let TEACHERS=new Set(); let STANDBY=new Set(); let PHONEBOOK=ls.get('smart_phonebook',{});
+let STANDBY_PRIORITY=ls.get('smart_standby_priority',{}); // {teacher: number}
+let DUTY=ls.get('smart_duty',{}); // {day:{morning:[],dismissal:[],break:[],prayer:[]}}
+const WA_DEFAULT_CC='966';
+
+/* ============== مواقيت ============== */
+const DEFAULT_TIMES={assm_s:'06:45',assm_e:'07:00',p1_s:'07:00',p1_e:'07:50',p2_s:'07:50',p2_e:'08:40',p3_s:'08:40',p3_e:'09:30',break_s:'09:30',break_e:'09:55',p4_s:'09:55',p4_e:'10:45',p5_s:'10:45',p5_e:'11:35',p6_s:'11:35',p6_e:'12:25',pr_s:'12:25',pr_e:'12:40',p7_s:'12:40',p7_e:'13:30'};
+let TIMES=ls.get('smart_times',DEFAULT_TIMES);
+function setTimeInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) el.value=TIMES[id]})}
+function saveTimesFromInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) TIMES[id]=el.value||DEFAULT_TIMES[id]}); ls.set('smart_times',TIMES)}
+function parseHM(str){const [h,m]=str.split(':').map(x=>parseInt(x)); return {h,m}}
+function inRangeHM(now,s,e){const x=now.getHours()*60+now.getMinutes(), S=s.h*60+s.m, E=e.h*60+e.m; return x>=S && x<E}
+function currentSlot(grade,dayName,now){const t=TIMES; const P=n=>({kind:'period',period:n}); const L=txt=>({kind:txt});
+  if(inRangeHM(now,parseHM(t.assm_s),parseHM(t.assm_e))) return L('assembly');
+  if(inRangeHM(now,parseHM(t.p1_s),parseHM(t.p1_e))) return P(1);
+  if(inRangeHM(now,parseHM(t.p2_s),parseHM(t.p2_e))) return P(2);
+  if(inRangeHM(now,parseHM(t.p3_s),parseHM(t.p3_e))) return P(3);
+  if(inRangeHM(now,parseHM(t.break_s),parseHM(t.break_e))) return L('break');
+  if(inRangeHM(now,parseHM(t.p4_s),parseHM(t.p4_e))) return P(4);
+  if(inRangeHM(now,parseHM(t.p5_s),parseHM(t.p5_e))) return P(5);
+  if(inRangeHM(now,parseHM(t.p6_s),parseHM(t.p6_e))) return P(6);
+  if(inRangeHM(now,parseHM(t.pr_s),parseHM(t.pr_e))) return L('prayer');
+  const isSunMon=(dayName==='الأحد'||dayName==='الاثنين'); if(isSunMon && inRangeHM(now,parseHM(t.p7_s),parseHM(t.p7_e))) return P(7);
+  return L('dismiss'); }
+function withinFirst15OfP6(now){const s=parseHM(TIMES.p6_s);const e15={h:s.h,m:s.m+15};const x=now.getHours()*60+now.getMinutes();return x>=(s.h*60+s.m) && x<(e15.h*60+e15.m)}
+function timeRangeOfPeriod(n){const map={1:['p1_s','p1_e'],2:['p2_s','p2_e'],3:['p3_s','p3_e'],4:['p4_s','p4_e'],5:['p5_s','p5_e'],6:['p6_s','p6_e'],7:['p7_s','p7_e']}; const k=map[n]; if(!k) return ''; return `${TIMES[k[0]]}–${TIMES[k[1]]}`}
+
+/* ============== شاشة الشعب ============== */
+const CLASSES={
+  first:Array.from({length:7},(_,i)=>({grade:'أول',section:String(i+1)})).map(x=>({...x,classId:makeClassId(x.grade,x.section)})),
+  second:Array.from({length:5},(_,i)=>({grade:'ثاني',section:String(i+1)})).map(x=>({...x,classId:makeClassId(x.grade,x.section)})),
+  third:Array.from({length:5},(_,i)=>({grade:'ثالث',section:String(i+1)})).map(x=>({...x,classId:makeClassId(x.grade,x.section)}))
+};
+function renderBands(){
+  const mk=cls=>`<div class="tile" id="tile_${cls.classId}">
+    <div class="badge">${cls.grade} — شعبة ${toArabicDigits(cls.section)}</div>
+    <div class="section">${cls.grade} ${toArabicDigits(cls.section)}</div>
+    <div class="subject empty">—</div>
+    <div class="teacher"></div>
+    <div class="room"></div>
+    <div class="state"></div>
+  </div>`;
+  $('#band_first').innerHTML=CLASSES.first.map(mk).join('');
+  $('#band_second').innerHTML=CLASSES.second.map(mk).join('');
+  $('#band_third').innerHTML=CLASSES.third.map(mk).join('');
+  placeDutyWidgets();
+}
+
+/* ===== وضع مربعات المناوبة/الإشراف بجوار ثاني-5 وثالث-5 ===== */
+function placeDutyWidgets(){
+  const second5=$('#tile_ثاني-5'), third5=$('#tile_ثالث-5');
+  if(second5 && !$('#duty_second')){
+    const box=document.createElement('div');
+    box.className='dutybox screen-only';
+    box.id='duty_second';
+    box.innerHTML=`<h4>🛡️ المناوبة & الإشراف — اليوم</h4>
+      <div class="wa" title="إشعار واتساب" onclick="notifyDuty()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.94 11.94 0 0 0 12.06 0C5.4 0 0 5.4 0 12.06c0 2.12.56 4.16 1.62 5.96L0 24l6.16-1.6a12.02 12.02 0 0 0 5.9 1.54h.01c6.66 0 12.06-5.4 12.06-12.06 0-3.23-1.26-6.26-3.48-8.48Zm-8.46 18.04h-.01a10.3 10.3 0 0 1-5.24-1.44l-.38-.22-3.66.95.98-3.56-.25-.37a10.31 10.31 0 1 1 8.56 4.64Z"/></svg>
+        <span>واتساب</span>
+      </div>
+      <ul id="duty_list_today"><li>—</li></ul>`;
+    second5.insertAdjacentElement('afterend',box);
+  }
+  if(third5 && !$('#duty_third_placeholder')){
+    const ph=document.createElement('div');
+    ph.id='duty_third_placeholder';
+    ph.style.flex='0 0 0px';
+    third5.insertAdjacentElement('afterend',ph);
+  }
+  updateDutyUI();
+}
+function dutyLine(title, arr){ return `<li><b>${title}:</b> ${arr && arr.length? arr.join('، ') : '—'}</li>`; }
+function updateDutyUI(){
+  const day=dayNameArabicFromDate(new Date());
+  const d=DUTY[day]||{morning:[],dismissal:[],break:[],prayer:[]};
+  const html=`${dutyLine('مناوبة قبل الطابور',d.morning)}${dutyLine('مناوبة نهاية الدوام',d.dismissal)}${dutyLine('إشراف الفسحة',d.break)}${dutyLine('إشراف الصلاة',d.prayer)}`;
+  const s=$('#duty_list_today'); if(s) s.innerHTML=html;
+}
+
+/* ===== إشعار واتساب للمناوبين/المشرفين اليوم ===== */
+function ensurePhone(name){let ph=PHONEBOOK[name]; if(!ph){ ph=prompt('أدخل رقم واتساب للمعلم: '+name+' (مثال 9665XXXXXXXX)')||''; ph=ph.replace(/[^0-9]/g,''); if(ph){PHONEBOOK[name]=ph; ls.set('smart_phonebook',PHONEBOOK);} } return ph}
+function openWA(phone,text){ if(!phone){alert('لا يوجد رقم واتساب صالح.'); return;} const url=`https://wa.me/${phone}?text=${encodeURIComponent(text)}`; window.open(url,'_blank') }
+function notifyDuty(){
+  const day=dayNameArabicFromDate(new Date());
+  const d=DUTY[day]||{morning:[],dismissal:[],break:[],prayer:[]};
+  const all=[...(d.morning||[]),...(d.dismissal||[]),...(d.break||[]),...(d.prayer||[])];
+  const unique=[...new Set(all)].filter(Boolean);
+  if(!unique.length){alert('لا يوجد أسماء للمناوبة/الإشراف لليوم.'); return;}
+  const phones=unique.map(n=>ensurePhone(n)).filter(Boolean);
+  const msg=`تنبيه المناوبة/الإشراف — ${day}
+- قبل الطابور: ${(d.morning||[]).join('، ')||'—'}
+- نهاية الدوام: ${(d.dismissal||[]).join('، ')||'—'}
+- إشراف الفسحة: ${(d.break||[]).join('، ')||'—'}
+- إشراف الصلاة: ${(d.prayer||[]).join('، ')||'—'}`;
+  phones.forEach(p=>openWA(p,msg));
+}
+
+/* ===== تحديث العنوان والساعة ===== */
+function updateHeroNow(dayName,now){
+  const slot=currentSlot('أول',dayName,now); let txt='';
+  if(slot.kind==='assembly') txt='👋 الآن: الاصطفاف الصباحي';
+  else if(slot.kind==='break') txt='☕️ الآن: فسحة للجميع';
+  else if(slot.kind==='prayer') txt='🕌 الآن: فاصل صلاة — أول يستكمل السادسة/ثاني وثالث صلاة';
+  else if(slot.kind==='dismiss') txt='🏁 خارج أوقات اليوم الدراسي';
+  else if(slot.kind==='period') txt=`📚 الآن: الحصة ${toArabicDigits(slot.period)} — عرض لحظي لجميع الشعب (١٧)`;
+  $('#heroNow').textContent=txt
+}
+function refreshGrid(){
+  const now=new Date(); const dayName=dayNameArabicFromDate(now);
+  updateHeroNow(dayName,now);
+  const groups=[...CLASSES.first,...CLASSES.second,...CLASSES.third];
+  groups.forEach(cls=>{
+    const tile=$(`#tile_${cls.classId}`); if(!tile) return;
+    const subEl=tile.querySelector('.subject'); const tEl=tile.querySelector('.teacher'); const rEl=tile.querySelector('.room'); const sEl=tile.querySelector('.state');
+    const slot=currentSlot(cls.grade,dayName,now);
+
+    if(slot.kind==='period' && slot.period===6){
+      if(cls.grade==='أول' && withinFirst15OfP6(now)){
+        subEl.textContent='🕌 صلاة (أول ثانوي)'; subEl.classList.remove('empty'); tEl.textContent=''; rEl.textContent=''; sEl.textContent='الحصة ٦ — أول ١٥ دقيقة صلاة'; return;
+      }
+    }
+    if(slot.kind==='prayer'){
+      if(cls.grade==='أول'){
+        const ent=findEntry(dayName,6,cls.classId);
+        if(ent){ subEl.textContent=`${ent.subject}`; subEl.classList.remove('empty'); tEl.textContent=ent.teacher?`المعلم: ${ent.teacher}`:''; rEl.textContent=ent.room?`قاعة: ${ent.room}`:''; sEl.textContent='استكمال السادسة'; }
+        else { subEl.textContent='استكمال السادسة'; subEl.classList.remove('empty'); tEl.textContent=''; rEl.textContent=''; sEl.textContent=''; }
+      } else { subEl.textContent='🕌 صلاة (ثاني/ثالث)'; subEl.classList.remove('empty'); tEl.textContent=''; rEl.textContent=''; sEl.textContent='بعد السادسة'; }
+      return;
+    }
+    if(slot.kind==='assembly'){ subEl.textContent='👋 الاصطفاف الصباحي'; subEl.classList.remove('empty'); tEl.textContent=''; rEl.textContent=''; sEl.textContent=''; return; }
+    if(slot.kind==='break'){ subEl.textContent='☕️ فسحة'; subEl.classList.remove('empty'); tEl.textContent=''; rEl.textContent=''; sEl.textContent=''; return; }
+    if(slot.kind==='dismiss'){ subEl.textContent='🏁 خارج الدوام'; subEl.classList.remove('empty'); tEl.textContent=''; rEl.textContent=''; sEl.textContent=''; return; }
+    if(slot.kind==='period'){
+      const ent=findEntry(dayName,slot.period,cls.classId);
+      if(ent){
+        subEl.textContent=`${ent.subject}`; subEl.classList.remove('empty');
+        tEl.textContent=ent.teacher?`المعلم: ${ent.teacher}`:''; rEl.textContent=ent.room?`قاعة: ${ent.room}`:'';
+        sEl.textContent=`الحصة ${toArabicDigits(slot.period)} — ${timeRangeOfPeriod(slot.period)}`;
+      } else {
+        subEl.textContent='— لا حصة —'; subEl.classList.add('empty');
+        tEl.textContent=''; rEl.textContent=''; sEl.textContent=`الحصة ${toArabicDigits(slot.period)} — ${timeRangeOfPeriod(slot.period)}`;
+      }
+    }
+  });
+  updateDateWeek(); updateNowSummary(dayName,now); updateDutyUI();
+}
+function findEntry(day,period,classId){return TIMETABLE.find(r=>r.day===day && Number(r.period)===Number(period) && r.classId===classId)}
+function updateNowSummary(dayName,now){const slot=currentSlot('أول',dayName,now); let txt=''; if(slot.kind==='assembly') txt='👋 الاصطفاف الآن'; else if(slot.kind==='break') txt='☕️ فسحة الآن'; else if(slot.kind==='prayer') txt='🕌 فاصل صلاة'; else if(slot.kind==='dismiss') txt='🏁 نهاية/خارج الدوام'; else if(slot.kind==='period') txt=`📚 الحصة ${toArabicDigits(slot.period)}`; $('#nowSummary').textContent=txt}
+function tickClock(){const now=new Date(); const hh=String(now.getHours()).padStart(2,'0'); const mm=String(now.getMinutes()).padStart(2,'0'); const ss=String(now.getSeconds()).padStart(2,'0'); $('#clock').textContent=`${toArabicDigits(hh)}:${toArabicDigits(mm)}:${toArabicDigits(ss)}`; refreshGrid()}
+
+/* ============== تاريخ هجري + الأسبوع السابع ============== */
+const CURRENT_WEEK=7; const TERM_NAME='الفصل الدراسي الأول';
+function hijriTodayUmAlQura(){try{const fmt=new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Riyadh'});return fmt.format(new Date());}catch(e){return 'التاريخ الهجري (أم القرى)';}}
+function updateDateWeek(){const s=`${hijriTodayUmAlQura()} — الأسبوع السابع (${TERM_NAME})`; $('#dateWeek').textContent=s}
+
+/* ============== أدوات إكسل — قراءة مرنة (CSV/Excel) ============== */
+function sheetToJson(ws){return XLSX.utils.sheet_to_json(ws,{defval:'',raw:false})}
+function readWorkbook(file, cb){
+  const ext=(file.name.split('.').pop()||'').toLowerCase();
+  const reader=new FileReader();
+  reader.onerror=()=>alert('تعذّر قراءة الملف.');
+  if(ext==='csv'){
+    reader.onload=e=>{ try{ const wb=XLSX.read(e.target.result,{type:'string'}); cb(wb); }catch(err){ console.error(err); alert('CSV غير صالح.'); } };
+    reader.readAsText(file,'utf-8');
+  } else {
+    reader.onload=e=>{ try{ const data=new Uint8Array(e.target.result); const wb=XLSX.read(data,{type:'array'}); cb(wb); }catch(err){ console.error(err); alert('ملف Excel غير صالح.'); } };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+/* —— تخمين تلقائي للأعمدة الأساسية —— */
+function autoInferCoreIndexes(rows){
+  const headers=Object.keys(rows[0]||{});
+  const baseIdx={day:-1,period:-1,grade:-1,section:-1,subject:-1,teacher:-1,room:-1,phone:-1,waitNo:-1};
+  const idx={...baseIdx};
+  // محاولة مباشرة بالمرادفات
+  for(const k of Object.keys(idx)){ const m=matchColumn(headers,COLMAP[k]||[]); if(m>=0) idx[k]=m; }
+  if(idx.day>=0 && idx.period>=0 && idx.grade>=0 && idx.section>=0) return {idx,headers};
+
+  // نقاط ترجيح من أول 120 صف
+  const sampleCount=Math.min(rows.length,120);
+  const scores=headers.map(()=>({day:0,period:0,grade:0,section:0}));
+  for(let r=0;r<sampleCount;r++){
+    const row=rows[r];
+    headers.forEach((h,i)=>{
+      const val=row[h];
+      const cd=canonicalDay(val); if(cd) scores[i].day++;
+      const pp=parsePeriod(val); if(!isNaN(pp)) scores[i].period++;
+      const gg=normalizeArabicBasic(val); if(/^(اول|ثاني|ثالث|1|2|3)/.test(gg)) scores[i].grade++;
+      const sn=sectionToNumber(val); if(String(sn).match(/^\d{1,2}$/)||/^[أ-ي]$/.test(String(val||'').trim())) scores[i].section++;
+    });
+  }
+  function best(type){ let bestI=-1,bestV=-1; for(let i=0;i<scores.length;i++){ if(scores[i][type]>bestV){ bestV=scores[i][type]; bestI=i; } } return bestI; }
+  if(idx.day<0) idx.day=best('day');
+  if(idx.period<0) idx.period=best('period');
+  if(idx.grade<0) idx.grade=best('grade');
+  if(idx.section<0) idx.section=best('section');
+  return {idx,headers};
+}
+
+/* ============== استيراد الجدول العام (Excel/CSV) ============== */
+function handleExcelTable(file){
+  readWorkbook(file,(wb)=>{
+    try{
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=sheetToJson(ws);
+      if(!rows.length){alert('الملف فارغ.'); return;}
+      const {idx,headers}=autoInferCoreIndexes(rows);
+      if(idx.day<0||idx.period<0||idx.grade<0||idx.section<0){
+        alert('تعذّر تحديد الأعمدة تلقائيًا. تأكد من: اليوم/الحصة/الصف/الشعبة');
+        return;
+      }
+      TIMETABLE=[]; TEACHERS=new Set();
+      rows.forEach(r=>{
+        const day=canonicalDay(r[headers[idx.day]]);
+        const period=parsePeriod(r[headers[idx.period]]);
+        const grade=normalizeGrade(r[headers[idx.grade]]);
+        const section=normalizeSection(r[headers[idx.section]]);
+        const subject=(idx.subject>=0?String(r[headers[idx.subject]]||'').trim():'');
+        const teacher=(idx.teacher>=0?String(r[headers[idx.teacher]]||'').trim():'');
+        const room=(idx.room>=0?String(r[headers[idx.room]]||'').trim():'');
+        const phone=(idx.phone>=0?String(r[headers[idx.phone]]||'').replace(/\D/g,'').trim():'');
+        const classId=makeClassId(grade,section);
+        if(teacher){TEACHERS.add(teacher); if(phone) PHONEBOOK[teacher]=phone.startsWith(WA_DEFAULT_CC)?phone:(WA_DEFAULT_CC+phone);}
+        if(DAYS_AR.includes(day) && !isNaN(period) && period>=1 && period<=7 && grade && section){
+          TIMETABLE.push({day,period,grade,section,classId,subject,teacher,room});
+        }
+      });
+
+      ls.set('smart_timetable',TIMETABLE);
+      ls.set('smart_teachers_from_table',Array.from(TEACHERS));
+      ls.set('smart_phonebook',PHONEBOOK);
+      hydrateImportStatus();
+      alert('تم استيراد الجدول العام بنجاح ✔');
+      refreshGrid();
+    }catch(err){ console.error(err); alert('تعذّر معالجة ورقة العمل.'); }
+  });
+}
+
+/* ============== استيراد المعلمين + رقم الانتظار + المناوبة/الإشراف ============== */
+function parseDutySheet(ws){
+  const rows=sheetToJson(ws); if(!rows.length) return {};
+  const headers=Object.keys(rows[0]||{});
+  const di=matchColumn(headers,['اليوم','day','weekday']); const mi=matchColumn(headers,['المناوبه','مناوبة','morning','before assembly','قبل الطابور']);
+  const dii=matchColumn(headers,['نهايةالدوام','المغادره','dismissal','end']); const bi=matchColumn(headers,['الفسحه','فسحه','break','recess']);
+  const pi=matchColumn(headers,['الصلاه','صلاة','prayer']);
+  const map={};
+  rows.forEach(r=>{
+    const day=canonicalDay(r[headers[di]]||''); if(!day) return;
+    function splitNames(v){ return String(v||'').split(/[،,؛;]/).map(x=>x.trim()).filter(Boolean); }
+    map[day]={ morning: splitNames(r[headers[mi]]), dismissal: splitNames(r[headers[dii]]), break: splitNames(r[headers[bi]]), prayer: splitNames(r[headers[pi]]) };
+  });
+  return map;
+}
+function handleExcelTeachers(file){
+  readWorkbook(file,(wb)=>{
+    try{
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=sheetToJson(ws);
+      if(!rows.length){alert('الملف فارغ.'); return;}
+      const headers=Object.keys(rows[0]||{});
+      const ti=matchColumn(headers,COLMAP.teacher);
+      const pi=matchColumn(headers,COLMAP.phone);
+      const wi=matchColumn(headers,COLMAP.waitNo);
+      const ri=matchColumn(headers,['role','الحاله','حاله','وظيفه','role/حالة']);
+
+      STANDBY=new Set();
+      rows.forEach(r=>{
+        const t=ti>=0?String(r[headers[ti]]||'').trim():'';
+        if(!t) return;
+        const role=ri>=0?normalizeArabicBasic(r[headers[ri]]):'';
+        const ph=pi>=0?String(r[headers[pi]]||'').replace(/\D/g,'').trim():'';
+        const w=wi>=0?parseArabicInt(r[headers[wi]]):null;
+
+        TEACHERS.add(t);
+        if(ph) PHONEBOOK[t]=ph.startsWith(WA_DEFAULT_CC)?ph:(WA_DEFAULT_CC+ph);
+        if(role.includes('standby')||role.includes('احتياط')) STANDBY.add(t);
+        if(!isNaN(w)) STANDBY_PRIORITY[t]=w;
+      });
+
+      // ورقة المناوبة/الإشراف (إن وجدت)
+      let dutyFound=false;
+      for(const name of wb.SheetNames){
+        const n=normalizeArabicBasic(name);
+        if(n.includes('duty')||n.includes('مناوبه')||n.includes('المناوبه')||n.includes('اشراف')||n.includes('الاشراف')){
+          const m=parseDutySheet(wb.Sheets[name]);
+          if(Object.keys(m).length){ DUTY=m; dutyFound=true; break; }
+        }
+      }
+      ls.set('smart_teachers_all',Array.from(TEACHERS));
+      ls.set('smart_teachers_standby',Array.from(STANDBY));
+      ls.set('smart_phonebook',PHONEBOOK);
+      ls.set('smart_standby_priority',STANDBY_PRIORITY);
+      ls.set('smart_duty',DUTY);
+
+      hydrateImportStatus();
+      updateDutyUI();
+      alert('تم استيراد بيانات المعلّمين ✔' + (dutyFound?' (مع المناوبة/الإشراف)':''));
+    }catch(err){ console.error(err); alert('تعذّر معالجة ورقة العمل.'); }
+  });
+}
+
+/* ============== إحصاءات الاستيراد في القوائم المنسدلة ============== */
+function hydrateImportStatus(){
+  const tRows=(ls.get('smart_timetable',[])||[]).length;
+  const tTeachers=(ls.get('smart_teachers_from_table',[])||[]).length;
+  const teachAll=(ls.get('smart_teachers_all',[])||[]).length || tTeachers;
+  $('#tableStats').textContent = `تم استيراد ${toArabicDigits(tRows)} صفًا — مع ${toArabicDigits(tTeachers)} معلّمًا`;
+  $('#teachersStats').textContent = `إجمالي المعلّمين: ${toArabicDigits(teachAll)} — احتياط: ${toArabicDigits((ls.get('smart_teachers_standby',[])||[]).length)}`;
+}
+
+/* ============== قوائم القوالب (CSV) ============== */
+function downloadCSV(filename, header, rows){
+  const csv=[header.join(',')].concat(rows.map(r=>header.map(h=> (r[h]??'').toString().replace(/,/g,';') ).join(','))).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+}
+function downloadTemplate(kind){
+  if(kind==='table'){
+    const header=['اليوم','الحصة','الصف','الشعبة','المادة','المعلم','القاعة','الجوال'];
+    const sample=[
+      {'اليوم':'الأحد','الحصة':1,'الصف':'أول','الشعبة':'1','المادة':'رياضيات','المعلم':'أحمد علي','القاعة':'101','الجوال':'9665XXXXXXXX'},
+      {'اليوم':'الأحد','الحصة':1,'الصف':'ثاني','الشعبة':'1','المادة':'كيمياء','المعلم':'سعيد عمر','القاعة':'202','الجوال':''}
+    ];
+    downloadCSV('قالب_الجدول.csv',header,sample);
+  }else if(kind==='teachers'){
+    const header=['المعلم','الجوال','رقم الانتظار','role'];
+    const sample=[
+      {'المعلم':'أحمد علي','الجوال':'9665XXXXXXXX','رقم الانتظار':'1','role':'standby'},
+      {'المعلم':'سعيد عمر','الجوال':'9665YYYYYYYY','رقم الانتظار':'2','role':''}
+    ];
+    downloadCSV('قالب_المعلمين.csv',header,sample);
+  }else if(kind==='duty'){
+    const header=['اليوم','مناوبة قبل الطابور','مناوبة نهاية الدوام','إشراف الفسحة','إشراف الصلاة'];
+    const sample=[
+      {'اليوم':'الأحد','مناوبة قبل الطابور':'أحمد، خالد','مناوبة نهاية الدوام':'سعيد، فهد','إشراف الفسحة':'إبراهيم، محمد','إشراف الصلاة':'علي، حسن'}
+    ];
+    downloadCSV('قالب_المناوبة_الإشراف.csv',header,sample);
+  }
+}
+
+/* ============== شاشة الطباعة المنفصلة (أسبوع كامل) ============== */
+function buildPrintDuty(){
+  const wrap=$('#printDutyWrap'); if(!wrap) return;
+  const days=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+  wrap.innerHTML=days.map(day=>{
+    const d=DUTY[day]||{morning:[],dismissal:[],break:[],prayer:[]};
+    return `<div class="print-card">
+      <h3>${day}</h3>
+      <table><thead><tr><th>قبل الطابور</th><th>نهاية الدوام</th><th>إشراف الفسحة</th><th>إشراف الصلاة</th></tr></thead>
+      <tbody><tr>
+        <td>${(d.morning||[]).join('، ')||'—'}</td>
+        <td>${(d.dismissal||[]).join('، ')||'—'}</td>
+        <td>${(d.break||[]).join('، ')||'—'}</td>
+        <td>${(d.prayer||[]).join('، ')||'—'}</td>
+      </tr></tbody></table>
+    </div>`;
+  }).join('');
+}
+
+/* ============== ربط القوائم المنسدلة للأيقونات ============== */
+function toggle(btn,menu){btn.addEventListener('click',e=>{e.stopPropagation(); menu.classList.toggle('open')}); document.addEventListener('click',()=>menu.classList.remove('open'))}
+function bindMenus(){
+  toggle($('#btnTimes'),$('#timesMenu'));
+  toggle($('#btnImportTable'),$('#menuImportTable'));
+  toggle($('#btnImportTeachers'),$('#menuImportTeachers'));
+
+  // عناصر قوائم الاستيراد
+  $('#mi_table_upload').addEventListener('click',()=>{$('#menuImportTable').classList.remove('open'); $('#excelInput').value=''; $('#excelInput').click();});
+  $('#mi_table_template').addEventListener('click',()=>downloadTemplate('table'));
+
+  $('#mi_teachers_upload').addEventListener('click',()=>{$('#menuImportTeachers').classList.remove('open'); $('#teachersInput').value=''; $('#teachersInput').click();});
+  $('#mi_teachers_template').addEventListener('click',()=>downloadTemplate('teachers'));
+  $('#mi_duty_template').addEventListener('click',()=>downloadTemplate('duty'));
+}
+
+/* ============== أحداث عامة ============== */
+function bindActions(){
+  $('#btnPrint').addEventListener('click',()=>{ buildPrintDuty(); window.print(); });
+  $('#btnWA').addEventListener('click',()=>{const num=prompt('أدخل رقم واتساب (مثال 9665XXXXXXXX)'); if(!num) return; const clean=num.replace(/[^0-9]/g,''); openWA(clean,'رسالة تجريبية من لوحة الجدول.');});
+  $('#btnDefaults').addEventListener('click',()=>{TIMES={...DEFAULT_TIMES}; setTimeInputs(); ls.set('smart_times',TIMES); refreshGrid();});
+  $('#btnSaveTimes').addEventListener('click',()=>{saveTimesFromInputs(); alert('تم حفظ المواقيت.'); refreshGrid();});
+
+  // مدخلات الملفات
+  $('#excelInput').addEventListener('change',e=>{ if(e.target.files && e.target.files[0]){ handleExcelTable(e.target.files[0]); e.target.value=''; } });
+  $('#teachersInput').addEventListener('change',e=>{ if(e.target.files && e.target.files[0]){ handleExcelTeachers(e.target.files[0]); e.target.value=''; } });
+
+  // قبل الطباعة (داعم لبعض المتصفحات)
+  if('onbeforeprint' in window){ window.onbeforeprint=buildPrintDuty; }
+}
+
+/* ============== تحميل المحفوظات ============== */
+function loadSaved(){
+  const t=ls.get('smart_timetable',[]); if(t&&t.length){TIMETABLE=t; t.forEach(r=>{if(r.teacher) TEACHERS.add(r.teacher)})}
+  const standby=ls.get('smart_teachers_standby',[]); STANDBY=new Set(standby);
+  const pb=ls.get('smart_phonebook',{}); PHONEBOOK=pb||{};
+  STANDBY_PRIORITY=ls.get('smart_standby_priority',{});
+  DUTY=ls.get('smart_duty',DUTY||{});
+  hydrateImportStatus();
+  updateDateWeek();
+}
+
+/* ============== تهيئة ============== */
+(function init(){
+  renderBands();
+  setTimeInputs();
+  loadSaved();
+  bindMenus();
+  bindActions();
+  tickClock();
+  setInterval(tickClock,1000);
+})();
+</script>
+</body>
+</html>
