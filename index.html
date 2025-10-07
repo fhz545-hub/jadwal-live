@@ -42,16 +42,13 @@
     .hero{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0 10px;text-align:center}
     .iconbar{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
     .ib{width:38px;height:38px;border-radius:12px;background:#ffffffcc;backdrop-filter:blur(4px);display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e7e3;box-shadow:0 2px 10px #00000010;cursor:pointer;position:relative;transition:.2s}
-    .ib[disabled]{opacity:.5;cursor:not-allowed}
     .ib:hover{transform:translateY(-1px);background:#f6fbf9}
     .ib svg{width:20px;height:20px;color:#0b534a}
 
-    /* ===== الرفّ أسفل الأيقونات لعرض القوائم (بدون تداخل مع المحتوى) ===== */
+    /* ===== رفّ القوائم أسفل الأيقونات (لا يتداخل مع الشبكات) ===== */
     .menus-shelf{display:none; width:100%; margin-top:8px}
     .hero.menu-open .menus-shelf{display:block}
     .menus-shelf-inner{position:relative; width:100%}
-
-    /* القوائم المنسدلة داخل الرفّ */
     .menu{
       display:none;
       background:#fff;border:1px solid #dceae7;border-radius:12px;
@@ -62,7 +59,7 @@
     .menu.open{display:inline-block}
     .menu h4{margin:4px 6px 8px;font-size:13px;color:#0b4035}
     .menu .row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .menu input,.menu textarea,.menu button,.menu select{width:100%;padding:6px 8px;border:1px solid #d8e7e3;border-radius:8px;background:#fff;font-family:"Tajawal";font-size:12px}
+    .menu input,.menu button,.menu select{width:100%;padding:6px 8px;border:1px solid #d8e7e3;border-radius:8px;background:#fff;font-family:"Tajawal";font-size:12px}
     .btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--chip-border);background:var(--chip);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
     .btn-ghost:hover{background:#eefaf5}
 
@@ -95,25 +92,26 @@
 
     .tile{
       position:relative;background:linear-gradient(180deg,#ffffff 0%,#fbfffd 100%);
-      border:1px solid #dfeeea;border-radius:16px;padding:12px;min-height:148px;overflow:hidden;
+      border:1px solid #dfeeea;border-radius:16px;padding:12px;min-height:168px;overflow:hidden;
       box-shadow:0 6px 18px #0a3e330e; transition:.2s;
     }
     .tile:hover{transform:translateY(-1px); box-shadow:0 10px 22px #0a3e3312}
+    .tile.now{outline:2px solid var(--accent); box-shadow:0 8px 24px #0a3e331a}
     .badge{position:absolute;top:8px;left:8px;background:#e6fbf5;color:#0b534a;border:1px solid #bde7dc;padding:1px 8px;border-radius:999px;font-size:11px}
     .section{font-weight:800;color:#0b4035;font-size:15px;margin-bottom:8px;text-align:center}
-    .subject{font-size:15px;color:#113;text-align:center}
-    .teacher{font-size:13px;color:#345;margin-top:6px;text-align:center}
+    .subject{font-size:16px;font-weight:700;color:#0b2d28;text-align:center}
+    .teacher{font-size:13px;color:#2d5a54;margin-top:6px;text-align:center}
     .room{font-size:12px;color:#5a7;margin-top:2px;text-align:center}
     .state{position:absolute;bottom:8px;left:8px;font-size:11px;color:#0b534a}
-    .empty{color:#7ب8;font-style:italic}
+    .empty{color:#7b8;font-style:italic}
 
     /* أزرار الشعبة */
-    .abs-btn,.edit-btn,.abs-clear{position:absolute;top:8px;background:#fff;border:1px solid #f3b0b0;color:#b11;padding:2px 8px;border-radius:999px;font-size:11px;cursor:pointer}
+    .abs-btn,.edit-btn,.abs-clear{position:absolute;top:8px;background:#fff;border:1px solid #cfe8e1;color:#0b534a;padding:2px 8px;border-radius:999px;font-size:11px;cursor:pointer}
     .abs-btn{right:8px}
-    .abs-clear{right:8px;top:38px}
-    .edit-btn{left:8px;border-color:#cfe8e1;color:#0b534a}
+    .abs-clear{right:8px;top:38px;border-color:#f3b0b0;color:#b11}
+    .edit-btn{left:8px}
 
-    .abs-form,.edit-form{position:absolute;inset:auto 8px 8px 8px;background:#fff;border:1px solid #e9d3d3;border-radius:12px;padding:8px;box-shadow:0 8px 20px #0000001a}
+    .abs-form,.edit-form{position:absolute;inset:auto 8px 8px 8px;background:#fff;border:1px solid #e9d3d3;border-radius:12px;padding:8px;box-shadow:0 8px 20px #0000001a;z-index:2}
     .abs-form h5,.edit-form h5{margin:0 0 6px;font-size:12px;color:#8a1f1f}
     .abs-form .row,.edit-form .row{display:grid;grid-template-columns:1fr;gap:6px}
     .abs-form input,.abs-form button,.edit-form input,.edit-form button{width:100%;padding:6px 8px;border:1px solid #e6efec;border-radius:8px}
@@ -124,7 +122,9 @@
     .chip{display:inline-block;background:#fff;border:1px solid #e6efec;border-radius:999px;padding:2px 8px;font-size:11px;margin-top:4px}
 
     /* ===== المؤشر المتوسط ===== */
-    .mid-indicator{grid-column:3 / 6; grid-row:2; justify-self:center; display:flex; align-items:center; justify-content:center; margin-top:2px;}
+    .mid-indicator{
+      grid-column:3 / 6; grid-row:2; justify-self:center; display:flex; align-items:center; justify-content:center; margin-top:2px;
+    }
     @media (max-width:900px){ .mid-indicator{grid-column:1 / -1; grid-row:auto; justify-self:center} }
     .mid-card{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#fff;border:1px solid #e0ece9;border-top:4px solid var(--first);border-radius:14px;padding:10px 12px;box-shadow:0 6px 16px #0000000f;min-width:320px}
     .mid-title{font-weight:800;color:#0b4035}
@@ -263,7 +263,7 @@
         </div>
       </div>
 
-      <!-- رفّ القوائم (تحت الأيقونات مباشرة) -->
+      <!-- رفّ القوائم -->
       <div class="menus-shelf">
         <div class="menus-shelf-inner" id="menusShelf"></div>
       </div>
@@ -332,7 +332,7 @@
 /* ===== أدوات عامة ===== */
 const $ = s=>document.querySelector(s), $$ = s=>Array.from(document.querySelectorAll(s));
 const ls = { get(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))}, del(k){localStorage.removeItem(k)} };
-function toArabicDigits(str){return String(str).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);}
+function toArabicDigits(str){return String(str).replace(/[0-9]/g,d=>'٠١٢٢٣٤٥٦٧٨٩'[d]||d);}
 function dayNameArabicFromDate(dt){return ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][dt.getDay()]||'الأحد'}
 function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${da}/${m}/${y}`}
 function fmtHijri(d){try{return new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'2-digit',month:'long',year:'numeric'}).format(d)}catch{return fmtDate(d)}}
@@ -378,6 +378,9 @@ let SUBJECTS  = ls.get('smart_subjects_list', []);
 let PHONEBOOK = ls.get('smart_phonebook', {});
 let ABSENCES  = ls.get('smart_absences', {});
 let DAYS_LIST = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+
+/* عند فتح نموذج غياب/تحرير، نغلق تحديث البطاقة المعنية */
+let LOCKED_TILE_ID = null;
 
 function refreshDatalists(){
   $('#teachersList').innerHTML = (TEACHERS||[]).map(n=>`<option value="${n}">`).join('');
@@ -435,16 +438,24 @@ function updateTiles(dayName,now){
   const classes=[...CLASSES.first,...CLASSES.second,...CLASSES.third];
   classes.forEach(cls=>{
     const tile=$(`#tile_${cls.classId}`); if(!tile) return;
+
+    // لا نلمس البطاقة إذا كان نموذج الغياب/التحرير مفتوحًا عليها
+    if(LOCKED_TILE_ID===cls.classId && (tile.querySelector('.abs-form') || tile.querySelector('.edit-form'))){
+      // لكن نظهر إبراز "الآن" إن كانت ضمن الحصة الحالية
+      if(slot.kind==='period') tile.classList.add('now'); else tile.classList.remove('now');
+      return;
+    }
+
     const subEl=tile.querySelector('.subject'), tEl=tile.querySelector('.teacher'), rEl=tile.querySelector('.room'), sEl=tile.querySelector('.state');
-    tile.classList.remove('absent'); tile.querySelectorAll('.chip,.abs-form,.edit-form,.abs-clear').forEach(n=>n.remove());
+    tile.classList.remove('absent','now'); tile.querySelectorAll('.chip,.abs-form,.edit-form,.abs-clear').forEach(n=>n.remove());
 
     if(slot.kind==='period'){
+      tile.classList.add('now');
       const ent=findEntry(dayName, slot.period, cls.classId);
       const ab=ABSENCES[absKey(dayName,slot.period,cls.classId)];
       if(ent){
         subEl.textContent=ent.subject||'—'; subEl.classList.remove('empty');
-        if(String(ent.subject||'').includes('انتظار')){ tEl.textContent = shortTeacher(ent.teacher||''); }
-        else{ tEl.textContent = ent.teacher ? `${ent.teacher}` : ''; }
+        tEl.textContent = ent.teacher ? `${ent.teacher}` : '';
         rEl.textContent=ent.room?`قاعة: ${ent.room}`:'';
       } else {
         subEl.textContent='— لا حصة —'; subEl.classList.add('empty'); tEl.textContent=''; rEl.textContent='';
@@ -487,7 +498,12 @@ function openAbsForm(classId){
       <button class="mini" id="af_cancel_${classId}">إلغاء</button>
     </div>`;
   tile.appendChild(form);
-  $('#af_cancel_'+classId).onclick = ()=>form.remove();
+
+  LOCKED_TILE_ID = classId;  // قفل تحديث البطاقة أثناء الكتابة
+
+  const closeForm=()=>{ form.remove(); LOCKED_TILE_ID=null; updateAll(); };
+
+  $('#af_cancel_'+classId).onclick = closeForm;
   $('#af_save_'+classId).onclick = ()=>{
     const absent=$('#af_abs_'+classId).value.trim();
     const cover=$('#af_cov_'+classId).value.trim();
@@ -497,7 +513,7 @@ function openAbsForm(classId){
     if(cover && !TEACHERS.includes(cover)) TEACHERS.push(cover);
     ls.set('smart_teachers_list', TEACHERS);
     refreshDatalists();
-    form.remove(); updateAll();
+    closeForm();
   };
 }
 function openEditForm(classId){
@@ -517,7 +533,12 @@ function openEditForm(classId){
       <button class="mini" id="ef_cancel_${classId}">إلغاء</button>
     </div>`;
   tile.appendChild(form);
-  $('#ef_cancel_'+classId).onclick = ()=>form.remove();
+
+  LOCKED_TILE_ID = classId;
+
+  const closeForm=()=>{ form.remove(); LOCKED_TILE_ID=null; updateAll(); };
+
+  $('#ef_cancel_'+classId).onclick = closeForm;
   $('#ef_save_'+classId).onclick = ()=>{
     const subject=$('#ef_sub_'+classId).value.trim();
     const teacher=$('#ef_tch_'+classId).value.trim();
@@ -528,7 +549,7 @@ function openEditForm(classId){
     if(subject && !SUBJECTS.includes(subject)){ SUBJECTS.push(subject); ls.set('smart_subjects_list', SUBJECTS); }
     if(teacher && !TEACHERS.includes(teacher)){ TEACHERS.push(teacher); ls.set('smart_teachers_list', TEACHERS); }
     refreshDatalists();
-    form.remove(); updateAll();
+    closeForm();
   };
 }
 
@@ -805,7 +826,7 @@ function applySnapshot(o){
   refreshDatalists(); updateAll();
 }
 
-/* ===== القوائم تحت الأزرار (داخل الرفّ) ===== */
+/* ===== القوائم تحت الأزرار (رفّ) ===== */
 const MENU_MAP = {btnImport:'menuImport', btnTimes:'menuTimes', btnWA:'menuWA', btnCloud:'menuCloud'};
 let OPEN_MENU_ID = null;
 
@@ -850,6 +871,7 @@ document.addEventListener('click', (e)=>{
 window.addEventListener('resize', ()=>{ if(OPEN_MENU_ID){ const id = Object.keys(MENU_MAP).find(k=>MENU_MAP[k]===OPEN_MENU_ID); if(id) toggleMenu(id); }}, {passive:true});
 
 /* ===== ساعة + تحديثات ===== */
+function setDutyPhaseLabel(){ const ph = currentDutyPhase(new Date()); $('#phaseLabel').textContent = `${ph.label} ${ph.start && ph.end ? `(${ph.start}–${ph.end})` : ''}`; }
 function updateClock(){
   const now=new Date();
   const hh=String(now.getHours()).padStart(2,'0');
@@ -861,9 +883,8 @@ function updateClock(){
   updateTiles(day, now);
   updateMidIndicator(day, now);
 
-  // لا نعيد رسم لوحة المناوبة أثناء الكتابة حتى لا تختفي قائمة الأسماء
-  const editingDuty = document.querySelector('#dutyPanel input:focus');
-  if(editingDuty){ setDutyPhaseLabel(); }
+  // لا نعيد رسم لوحة المناوبة أثناء الكتابة في حقولها
+  if(document.querySelector('#dutyPanel input:focus')){ setDutyPhaseLabel(); }
   else{ renderDutyPanel(day); }
 }
 function updateAll(){
