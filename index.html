@@ -105,7 +105,7 @@
     .teacher{font-size:13px;color:#345;margin-top:6px;text-align:center}
     .room{font-size:12px;color:#5a7;margin-top:2px;text-align:center}
     .state{position:absolute;bottom:8px;left:8px;font-size:11px;color:#0b534a}
-    .empty{color:#7b8;font-style:italic}
+    .empty{color:#7ب8;font-style:italic}
 
     /* أزرار الشعبة */
     .abs-btn,.edit-btn,.abs-clear{position:absolute;top:8px;background:#fff;border:1px solid #f3b0b0;color:#b11;padding:2px 8px;border-radius:999px;font-size:11px;cursor:pointer}
@@ -143,7 +143,7 @@
       border-top:4px solid var(--duty-accent); border-radius:16px; padding:12px;
       box-shadow:0 6px 22px #ff5a5a14, 0 2px 10px #0000000d; width:100%;
     }
-    .duty-title{margin:0 0 6px; font-size:15px; color:var(--ink); font-weight:800}
+    .duty-title{margin:0 0 6px; font-size:15px; color:#0b4035; font-weight:800}
     .phase-pill{display:inline-block;border:1px dashed #dfe9e6;background:#f8fcfb;border-radius:999px;padding:3px 10px;font-size:12px;color:#0b4035}
     .duty-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 8px}
     .duty-tools .btn-ghost{font-size:12px;padding:6px 10px}
@@ -554,10 +554,13 @@ function currentDutyPhase(now=new Date()){
   if(m>=sP7 && m<depEnd) return {key:'afternoon', label:'مناوبة الانصراف', start:TIMES.p7_s, end:'13:45'};
   return {key:'other', label:'—', start:'', end:''};
 }
+function setDutyPhaseLabel(){
+  const ph = currentDutyPhase(new Date());
+  $('#phaseLabel').textContent = `${ph.label} ${ph.start && ph.end ? `(${ph.start}–${ph.end})` : ''}`;
+}
 function renderDutyPanel(day){
   const state = ensureDutyFixed(day);
-  const phase = currentDutyPhase(new Date());
-  $('#phaseLabel').textContent = `${phase.label} ${phase.start && phase.end ? `(${phase.start}–${phase.end})` : ''}`;
+  setDutyPhaseLabel();
 
   const rows = state.names.map((name,idx)=>`
     <div class="duty-row" data-idx="${idx}">
@@ -824,14 +827,12 @@ function toggleMenu(btnId){
   closeAllMenus();
   if(isOpen) return;
 
-  // حضّر الموضع: ضع القائمة مؤقتًا بالرف للقياس
   if(!menu.dataset.homeId){ menu.dataset.homeId = menu.parentElement.id; }
   hero.classList.add('menu-open');
   shelf.appendChild(menu);
   menu.style.visibility='hidden';
   menu.classList.add('open');
 
-  // محاذاة أسفل الزر
   const heroRect = hero.getBoundingClientRect();
   const btnRect  = btn.getBoundingClientRect();
   const menuW    = menu.offsetWidth;
@@ -859,7 +860,11 @@ function updateClock(){
   $('#dateWeek').textContent = `${day} • ${fmtHijri(now)} • ${fmtDate(now)}`;
   updateTiles(day, now);
   updateMidIndicator(day, now);
-  renderDutyPanel(day);
+
+  // لا نعيد رسم لوحة المناوبة أثناء الكتابة حتى لا تختفي قائمة الأسماء
+  const editingDuty = document.querySelector('#dutyPanel input:focus');
+  if(editingDuty){ setDutyPhaseLabel(); }
+  else{ renderDutyPanel(day); }
 }
 function updateAll(){
   const now=new Date(); const day=dayNameArabicFromDate(now);
