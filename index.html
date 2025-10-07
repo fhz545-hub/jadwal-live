@@ -15,7 +15,7 @@
       --moe-green:#18a27e; --moe-ink:#0f3d33; --light:#f9fefb; --line:#e7f2ee;
       --first:#0fb3b0; --second:#7bc35b; --third:#4a8fff;
       --danger-bg:#fdecec; --danger-border:#f5c2c2; --danger-ink:#8a1f1f;
-      --chip:#f3fbf8; --chip-border:#cfe8e1; --ink:#0b4035;
+      --chip:#f3fbف8; --chip-border:#cfe8e1; --ink:#0b4035;
       --ctl-bg:#ffffff; --ctl-border:#e4efec;
       --duty-accent:#e25353;
     }
@@ -38,14 +38,14 @@
 
     main{max-width:1500px;margin:0 auto;padding:10px 14px 80px}
 
-    /* ===== أيقونات عليا ===== */
+    /* ===== الأيقونات ===== */
     .hero{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0 10px;text-align:center}
     .iconbar{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
     .ib{width:38px;height:38px;border-radius:12px;background:#ffffffcc;backdrop-filter:blur(4px);display:inline-flex;align-items:center;justify-content:center;border:1px solid #d8e7e3;box-shadow:0 2px 10px #00000010;cursor:pointer;position:relative;transition:.2s}
     .ib:hover{transform:translateY(-1px);background:#f6fbf9}
     .ib svg{width:20px;height:20px;color:#0b534a}
 
-    /* ===== رفّ القوائم أسفل الأيقونات (لا يتداخل مع الشبكات) ===== */
+    /* ===== رفّ القوائم أسفل الأيقونات ===== */
     .menus-shelf{display:none; width:100%; margin-top:8px}
     .hero.menu-open .menus-shelf{display:block}
     .menus-shelf-inner{position:relative; width:100%}
@@ -53,7 +53,7 @@
       display:none;
       background:#fff;border:1px solid #dceae7;border-radius:12px;
       box-shadow:0 12px 30px #00000014;padding:10px;z-index:1;
-      width:max-content;min-width:320px;max-width:min(92vw,760px);max-height:min(70vh,560px);overflow:auto;
+      width:max-content;min-width:320px;max-width:min(92vw,820px);max-height:min(70vh,560px);overflow:auto;
       margin-inline-start:var(--menu-offset,0px);
     }
     .menu.open{display:inline-block}
@@ -94,14 +94,18 @@
       position:relative;background:linear-gradient(180deg,#ffffff 0%,#fbfffd 100%);
       border:1px solid #dfeeea;border-radius:16px;padding:12px;min-height:168px;overflow:hidden;
       box-shadow:0 6px 18px #0a3e330e; transition:.2s;
+      display:flex; flex-direction:column; justify-content:center;
     }
     .tile:hover{transform:translateY(-1px); box-shadow:0 10px 22px #0a3e3312}
     .tile.now{outline:2px solid var(--accent); box-shadow:0 8px 24px #0a3e331a}
     .badge{position:absolute;top:8px;left:8px;background:#e6fbf5;color:#0b534a;border:1px solid #bde7dc;padding:1px 8px;border-radius:999px;font-size:11px}
-    .section{font-weight:800;color:#0b4035;font-size:15px;margin-bottom:8px;text-align:center}
-    .subject{font-size:16px;font-weight:700;color:#0b2d28;text-align:center}
-    .teacher{font-size:13px;color:#2d5a54;margin-top:6px;text-align:center}
-    .room{font-size:12px;color:#5a7;margin-top:2px;text-align:center}
+
+    .vstack{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; min-height:110px}
+    .section{font-weight:800;color:#0b4035;font-size:15px}
+    .subject{font-size:17px;font-weight:800;color:#0b2d28}
+    .teacher{font-size:14px;color:#2d5a54}
+    .room{display:none}
+
     .state{position:absolute;bottom:8px;left:8px;font-size:11px;color:#0b534a}
     .empty{color:#7b8;font-style:italic}
 
@@ -122,9 +126,7 @@
     .chip{display:inline-block;background:#fff;border:1px solid #e6efec;border-radius:999px;padding:2px 8px;font-size:11px;margin-top:4px}
 
     /* ===== المؤشر المتوسط ===== */
-    .mid-indicator{
-      grid-column:3 / 6; grid-row:2; justify-self:center; display:flex; align-items:center; justify-content:center; margin-top:2px;
-    }
+    .mid-indicator{grid-column:3 / 6; grid-row:2; justify-self:center; display:flex; align-items:center; justify-content:center; margin-top:2px}
     @media (max-width:900px){ .mid-indicator{grid-column:1 / -1; grid-row:auto; justify-self:center} }
     .mid-card{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#fff;border:1px solid #e0ece9;border-top:4px solid var(--first);border-radius:14px;padding:10px 12px;box-shadow:0 6px 16px #0000000f;min-width:320px}
     .mid-title{font-weight:800;color:#0b4035}
@@ -139,9 +141,13 @@
 
     /* ===== عمود المناوبة/الإشراف ===== */
     .duty-card{
-      position:sticky; top:60px; background:var(--ctl-bg); border:1px solid var(--ctl-border);
-      border-top:4px solid var(--duty-accent); border-radius:16px; padding:12px;
-      box-shadow:0 6px 22px #ff5a5a14, 0 2px 10px #0000000d; width:100%;
+      position:sticky; top:60px;
+      background:var(--ctl-bg);
+      border:1px solid var(--danger-border);          /* إطار أحمر واضح */
+      border-top:4px solid var(--duty-accent);        /* شريط علوي أحمر */
+      border-radius:16px; padding:12px;
+      box-shadow:0 6px 22px #ff5a5a14, 0 2px 10px #0000000d;
+      width:100%;
     }
     .duty-title{margin:0 0 6px; font-size:15px; color:#0b4035; font-weight:800}
     .phase-pill{display:inline-block;border:1px dashed #dfe9e6;background:#f8fcfb;border-radius:999px;padding:3px 10px;font-size:12px;color:#0b4035}
@@ -160,8 +166,21 @@
     .mini{display:inline-flex; align-items:center; gap:4px; border:1px solid #e6efec; background:#fff; padding:6px 9px; border-radius:999px; font-size:12px; cursor:pointer}
     .mini:hover{background:#f9fcfb}
 
+    /* العبارات التوجيهية — أكبر وبدون نزول سطر */
     .duty-guide{margin-top:10px; border-top:1px dashed #e6efec; padding-top:8px}
-    .duty-guide li{list-style:none; white-space:nowrap; font-size:12px; line-height:1.9; color:#0b4035; opacity:.92}
+    .duty-guide li{
+      list-style:none;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;   /* سطر واحد فقط */
+      font-size:14.5px; line-height:2; color:#0b4035; opacity:.96;
+      padding:2px 4px;
+    }
+
+    /* ===== دليل المعلمين داخل قائمة واتساب ===== */
+    .tlist{margin-top:8px; display:grid; grid-template-columns:1fr; gap:6px}
+    .trow{display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; border:1px solid #edf3f2; border-radius:10px; padding:8px 10px; background:#fff}
+    .tname{font-weight:700; color:#0b4035}
+    .tmeta{font-size:12px; color:#2d5a54; opacity:.9}
+    .wa-btn{border:1px solid #cfe8e1; background:#f3fbf8; border-radius:999px; padding:6px 10px; font-size:12px; cursor:pointer}
 
     @media (max-width:1200px){
       .duty-card{position:static; min-height:auto; margin-top:12px}
@@ -171,6 +190,10 @@
     .ft{position:fixed;bottom:0;left:0;right:0;z-index:70;background:linear-gradient(90deg,#0e9a92,#1a9c77);border-top:3px solid #0d5e49;color:#fff}
     .ft-inner{max-width:1500px;margin:0 auto;padding:8px 10px;display:flex;justify-content:center;align-items:center}
     .ft-brand{font-size:12px;opacity:.95;text-align:center}
+
+    /* ومضة تنبيه للحقل عند اختيار المنتظر */
+    @keyframes blinkBorder { 0%{box-shadow:0 0 0 0 rgba(24,162,126,.0)} 50%{box-shadow:0 0 0 3px rgba(24,162,126,.25)} 100%{box-shadow:0 0 0 0 rgba(24,162,126,.0)} }
+    .pulse-once{animation:blinkBorder .9s ease}
   </style>
 </head>
 <body>
@@ -244,12 +267,20 @@
           </div>
         </div>
 
-        <!-- واتساب -->
-        <div class="ib" id="btnWA" title="واتساب: دفتر الهواتف + إشعار">
+        <!-- واتساب + دليل المعلمين -->
+        <div class="ib" id="btnWA" title="واتساب: دفتر الهواتف + استعراض المعلّمين">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.94 11.94 0 0 0 12.06 0C5.4 0 0 5.4 0 12.06c0 2.12.56 4.16 1.62 5.96L0 24l6.16-1.6a12.02 12.02 0 0 0 5.9 1.54h.01c6.66 0 12.06-5.4 12.06-12.06 0-3.23-1.26-6.26-3.48-8.48Zm-8.46 18.04h-.01a10.3 10.3 0 0 1-5.24-1.44l-.38-.22-3.66.95.98-3.56-.25-.37a10.31 10.31 0 1 1 8.56 4.64ZM17 14.2c-.28-.14-1.64-.8-1.9-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.9 1.08-.17.19-.33.21-.61.07-.28-.14-1.18-.44-2.26-1.4-.84-.75-1.41-1.68-1.57-1.96-.17-.28-.02-.43.12-.57.12-.12.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.55-.88-2.12-.23-.56-.47-.48-.64-.49-.16-.01-.35-.01-.54-.01-.19 0-.49.07-.75.35-.26.28-1 1-1 2.43 0 1.43 1.02 2.81 1.16 3 .14.19 2 3.05 4.85 4.28.68.29 1.21.46 1.62.58.68.22 1.3.19 1.79.12.55-.08 1.64-.67 1.87-1.32.23-.65.23-1.21.16-1.32-.07-.11-.26-.18-.54-.32Z"/></svg>
           <div class="menu" id="menuWA">
-            <h4>دفتر هواتف المعلّمين (Excel/CSV)</h4>
-            <div class="row"><button id="pickPhonebook" class="btn-ghost">استيراد (الاسم/الجوال/الهوية/التخصص)</button></div>
+            <h4>دفتر هواتف المعلّمين + استعراض الأسماء</h4>
+            <div class="row" style="grid-template-columns:1fr auto">
+              <button id="pickPhonebook" class="btn-ghost">استيراد (الاسم/الجوال/الهوية/التخصص)</button>
+              <button id="waShowAll" class="btn-ghost">عرض الكل</button>
+            </div>
+            <div class="row" style="grid-template-columns:1fr auto">
+              <input id="waSearch" placeholder="ابحث بالاسم أو التخصص أو الرقم">
+              <span id="waCount" class="btn-ghost" style="pointer-events:none">0 معلّم</span>
+            </div>
+            <div id="waList" class="tlist"></div>
           </div>
         </div>
 
@@ -275,7 +306,7 @@
     <!-- اللوحة الرئيسة -->
     <section class="card">
       <div class="board">
-        <!-- A) لوحة الشعب -->
+        <!-- لوحات الشعب -->
         <div id="classesBoard">
           <div id="wrap_first" class="band-wrap">
             <div class="bandTitle first"><span class="dot"></span> أول ثانوي (٧ شعب)</div>
@@ -293,7 +324,7 @@
           </div>
         </div>
 
-        <!-- B) عمود المناوبة/الإشراف -->
+        <!-- عمود المناوبة/الإشراف -->
         <aside id="dutyPanel" class="duty-card">
           <div class="duty-title">المناوبون والمشرفون لهذا اليوم</div>
           <div style="margin-bottom:6px"><span id="phaseLabel" class="phase-pill">—</span></div>
@@ -378,26 +409,28 @@ const CLASSES={
 let TIMETABLE = ls.get('smart_timetable', []);
 let TEACHERS  = ls.get('smart_teachers_list', []);
 let SUBJECTS  = ls.get('smart_subjects_list', []);
-let PHONEBOOK = ls.get('smart_phonebook', {});
+let PHONEBOOK = ls.get('smart_phonebook', {}); // { name: {phone, id, spec} }
 let ABSENCES  = ls.get('smart_absences', {});
 let DAYS_LIST = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
 
-/* يغلق إعادة تحديث البطاقة أثناء الكتابة */
+/* يغلق تحديث البلاطة أثناء النماذج */
 let LOCKED_TILE_ID = null;
 
 function refreshDatalists(){
-  $('#teachersList').innerHTML = (TEACHERS||[]).map(n=>`<option value="${n}">`).join('');
+  const names = new Set([...(TEACHERS||[]), ...Object.keys(PHONEBOOK||{})]);
+  $('#teachersList').innerHTML = [...names].sort().map(n=>`<option value="${n}">`).join('');
   $('#classesList').innerHTML = [].concat(
     CLASSES.first.map(x=>x.classId), CLASSES.second.map(x=>x.classId), CLASSES.third.map(x=>x.classId)
   ).map(v=>`<option value="${v}">`).join('');
   $('#subjectsList').innerHTML = (SUBJECTS||[]).map(n=>`<option value="${n}">`).join('');
 }
 
-/* المنتظرون الآن (حسب الحصة الحالية) */
+/* اكتشاف المنتظرين من الجدول (يدعم: انتظار/احتياط) */
 function currentWaiters(day, period){
-  const W = TIMETABLE.filter(r=>r.day===day && Number(r.period)===Number(period) && /انتظار/i.test(String(r.subject||'')) && r.teacher)
-                     .map(r=>({teacher:r.teacher, classId:r.classId}));
-  // إزالة التكرار بالاسم
+  const rx=/انتظار|احتياط/i;
+  const W = TIMETABLE
+    .filter(r=>r.day===day && Number(r.period)===Number(period) && rx.test(String(r.subject||'')) && r.teacher)
+    .map(r=>({teacher:r.teacher, classId:r.classId}));
   const seen=new Set(); return W.filter(w=>{ if(seen.has(w.teacher)) return false; seen.add(w.teacher); return true; });
 }
 
@@ -407,10 +440,12 @@ function renderBands(){
     <button class="abs-btn" data-class="${cls.classId}">غياب</button>
     <button class="edit-btn" data-class="${cls.classId}">تحرير</button>
     <div class="badge">${cls.grade} — شعبة ${toArabicDigits(cls.section)}</div>
-    <div class="section">${cls.grade} ${toArabicDigits(cls.section)}</div>
-    <div class="subject empty">—</div>
-    <div class="teacher"></div>
-    <div class="room"></div>
+    <div class="vstack">
+      <div class="section">${cls.grade} ${toArabicDigits(cls.section)}</div>
+      <div class="subject empty">—</div>
+      <div class="teacher"></div>
+      <div class="room"></div>
+    </div>
     <div class="state"></div>
   </div>`;
 
@@ -440,9 +475,6 @@ function findEntry(day,period,classId){return TIMETABLE.find(r=>r.day===day && N
 function absKey(day,period,classId){return `${day}|${period}|${classId}`;}
 function clearAbsence(day,period,classId){delete ABSENCES[absKey(day,period,classId)]; ls.set('smart_absences', ABSENCES); updateAll();}
 
-/* اسم مختصر للمعلم */
-function shortTeacher(name){return String(name||'').trim().split(/\s+/)[0]||'';}
-
 /* تحديث البلاطات */
 function updateTiles(dayName,now){
   const slot=currentSlot(dayName,now);
@@ -465,9 +497,8 @@ function updateTiles(dayName,now){
       if(ent){
         subEl.textContent=ent.subject||'—'; subEl.classList.remove('empty');
         tEl.textContent = ent.teacher ? `${ent.teacher}` : '';
-        rEl.textContent=ent.room?`قاعة: ${ent.room}`:'';
       } else {
-        subEl.textContent='— لا حصة —'; subEl.classList.add('empty'); tEl.textContent=''; rEl.textContent='';
+        subEl.textContent='— لا حصة —'; subEl.classList.add('empty'); tEl.textContent='';
       }
       sEl.textContent=`الحصة ${toArabicDigits(slot.period)} — ${timeRangeOfPeriod(slot.period)}`;
 
@@ -483,12 +514,12 @@ function updateTiles(dayName,now){
       }
     } else {
       const states={assembly:'👋 الاصطفاف',break:'☕️ فسحة',prayer:'🕌 صلاة',dismiss:'🏁 خارج الدوام'};
-      subEl.textContent=states[slot.kind]||'—'; subEl.classList.remove('empty'); tEl.textContent=''; rEl.textContent=''; sEl.textContent='';
+      subEl.textContent=states[slot.kind]||'—'; subEl.classList.remove('empty'); tEl.textContent=''; sEl.textContent='';
     }
   });
 }
 
-/* نماذج الغياب/التحرير + قائمة المنتظرين + واتساب */
+/* ===== نموذج الغياب مع قائمة المنتظرين + واتساب تربوي ===== */
 function openAbsForm(classId){
   const now=new Date(); const day=dayNameArabicFromDate(now); const slot=currentSlot(day,now);
   if(slot.kind!=='period'){ return alert('ليست ضمن وقت حصة.'); }
@@ -497,9 +528,19 @@ function openAbsForm(classId){
   const ent=findEntry(day, period, classId) || {};
   const ab=ABSENCES[`${day}|${period}|${classId}`] || {absent:(ent.teacher||''), cover:''};
 
-  const waiters = currentWaiters(day, period);
-  const waitOpts = ['<option value="">— اختر من المنتظرين الآن —</option>']
-      .concat(waiters.map(w=>`<option value="${w.teacher}">${w.teacher} — ${w.classId}</option>`)).join('');
+  const waitNow = currentWaiters(day, period);
+  const allTeachers = (TEACHERS||[]).filter(Boolean).sort((a,b)=>a.localeCompare(b,'ar'));
+
+  // بناء الخيارات: المنتظرون الآن + كل المعلمين (بديل)
+  let waitOpts = `<option value="">— اختر من المنتظرين —</option>`;
+  if(waitNow.length){
+    waitOpts += `<optgroup label="المنتظرون الآن">` +
+      waitNow.map(w=>`<option value="${w.teacher}">${w.teacher} — ${w.classId}</option>`).join('') +
+      `</optgroup>`;
+  }
+  waitOpts += `<optgroup label="كل المعلّمين">` +
+    allTeachers.map(n=>`<option value="${n}">${n}</option>`).join('') +
+    `</optgroup>`;
 
   const form=document.createElement('div'); form.className='abs-form';
   form.innerHTML=`<h5>غياب/تغطية — ${day} الحصة ${toArabicDigits(period)}</h5>
@@ -516,19 +557,28 @@ function openAbsForm(classId){
   tile.appendChild(form);
 
   LOCKED_TILE_ID = classId;
-
   const closeForm=()=>{ form.remove(); LOCKED_TILE_ID=null; updateAll(); };
+
+  const $abs = ()=>$('#af_abs_'+classId);
+  const $cov = ()=>$('#af_cov_'+classId);
+  const $sel = ()=>$('#af_wait_'+classId);
+
   $('#af_cancel_'+classId).onclick = closeForm;
 
-  // اختيار المنتظر يملأ المكلّف
-  $('#af_wait_'+classId).onchange = ()=>{
-    const v=$('#af_wait_'+classId).value;
-    if(v) $('#af_cov_'+classId).value=v;
+  // عند اختيار منتظر (تعمل على change و input لضمان الاستجابة على الجوال)
+  const applyWaiter=()=>{
+    const v=$sel().value;
+    if(v){
+      $cov().value=v;
+      $cov().classList.remove('pulse-once'); void $cov().offsetWidth; $cov().classList.add('pulse-once');
+    }
   };
+  $sel().addEventListener('change', applyWaiter);
+  $sel().addEventListener('input', applyWaiter);
 
   $('#af_save_'+classId).onclick = ()=>{
-    const absent=$('#af_abs_'+classId).value.trim();
-    const cover=$('#af_cov_'+classId).value.trim();
+    const absent=$abs().value.trim();
+    const cover=$cov().value.trim();
     ABSENCES[`${day}|${period}|${classId}`]={absent,cover};
     ls.set('smart_absences', ABSENCES);
     if(absent && !TEACHERS.includes(absent)) TEACHERS.push(absent);
@@ -538,13 +588,11 @@ function openAbsForm(classId){
     closeForm();
   };
 
-  // واتساب مباشر
+  // واتساب تربوي للمنتظر/المكلّف
   $('#af_wa_'+classId).onclick = ()=>{
-    const absent=$('#af_abs_'+classId).value.trim() || 'غير محدد';
-    const cover =$('#af_cov_'+classId).value.trim();
-    if(!cover) return alert('اختر المعلّم المكلّف أولًا (من الحقل أو من قائمة المنتظرين).');
-
-    // هاتف
+    const cover = $cov().value.trim();
+    const absent = $abs().value.trim() || 'غير محدد';
+    if(!cover) return alert('اختر المعلم المكلّف بالتغطية أولًا.');
     let phone = String((PHONEBOOK[cover]||{}).phone||'').replace(/[^0-9]/g,'');
     if(!phone){
       const inp = prompt('لا يوجد رقم لهذا المعلّم.\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):');
@@ -554,14 +602,13 @@ function openAbsForm(classId){
       PHONEBOOK[cover] = {...(PHONEBOOK[cover]||{}), phone};
       ls.set('smart_phonebook', PHONEBOOK);
     }
-
     const tr = timeRangeOfPeriod(period);
-    const msg=`السلام عليكم ${cover}
-تكليف تغطية حصة ${periodNameAr(period)}
-الفصل: ${classId}
-المعلم الغائب: ${absent}
-الوقت: ${tr}
-شاكرين لكم تعاونكم وتفعيل الحصة. 🌟`;
+    const msg=`السلام عليكم أ/ ${cover}
+نذكّركم بتكليف تغطية حصة ${periodNameAr(period)} (${tr})
+لفصل: ${classId}
+بدلاً عن الزميل: ${absent}.
+نأمل تفعيل زمن الحصة وفق خطة المدرسة مع ضبط الانضباط والسلوك.
+شكرًا لتعاونكم وجزاكم الله خيرًا.`;
     const url=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
     window.open(url,'_blank');
   };
@@ -586,9 +633,7 @@ function openEditForm(classId){
   tile.appendChild(form);
 
   LOCKED_TILE_ID = classId;
-
   const closeForm=()=>{ form.remove(); LOCKED_TILE_ID=null; updateAll(); };
-
   $('#ef_cancel_'+classId).onclick = closeForm;
   $('#ef_save_'+classId).onclick = ()=>{
     const subject=$('#ef_sub_'+classId).value.trim();
@@ -648,7 +693,6 @@ function renderDutyPanel(day){
   `).join('');
   $('#dutyList').innerHTML = rows;
 
-  // تعديل الاسم + حفظ
   $$('#dutyList .duty-row input').forEach(inp=>{
     inp.onchange = ()=>{
       const idx = parseInt(inp.closest('.duty-row').dataset.idx);
@@ -658,7 +702,6 @@ function renderDutyPanel(day){
     };
   });
 
-  // سحب لإعادة الترتيب
   let dragIndex=null;
   $$('#dutyList .duty-row').forEach(row=>{
     row.addEventListener('dragstart', e=>{ dragIndex=parseInt(row.dataset.idx); row.classList.add('dragging'); });
@@ -668,20 +711,19 @@ function renderDutyPanel(day){
       e.preventDefault();
       const toIdx=parseInt(row.dataset.idx);
       if(dragIndex===null || dragIndex===toIdx) return;
-      const [moved]=state.names.splice(dragIndex,1);
-      state.names.splice(toIdx,0,moved);
+      const st = ensureDutyFixed(day);
+      const [moved]=st.names.splice(dragIndex,1);
+      st.names.splice(toIdx,0,moved);
       ls.set('smart_duty_fixed', DUTY_FIXED);
       renderDutyPanel(day);
     });
   });
 
-  // حذف
   $$('#dutyList [data-clr]').forEach(btn=>btn.onclick=()=>{
     state.names[parseInt(btn.dataset.clr)]='';
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
   });
 
-  // واتساب
   $$('#dutyList [data-wa]').forEach(btn=>btn.onclick=()=>{
     const i=parseInt(btn.dataset.wa); const name=state.names[i];
     if(!name) return alert('أدخل اسم المعلّم أولاً.');
@@ -861,14 +903,34 @@ function buildTimetableFromSheet(ws){
   return tt;
 }
 
-/* ===== استيراد هاتف/واتساب ===== */
+/* ===== استيراد هاتف/واتساب + دليل المعلمين ===== */
 function parsePhonebookSheet(ws){
-  const {R}=sheetSize(ws); const map={};
-  for(let r=0;r<R;r++){
-    let name = String(cell(ws,r,0)||'').trim();
-    let phone = String(cell(ws,r,1)||'').replace(/[^0-9]/g,'');
-    if(!name || !phone) continue;
-    map[name]={phone};
+  const {R,C}=sheetSize(ws);
+  let headerMap = {name:0, phone:1, id:null, spec:null};
+  const headerRow = Array.from({length:C},(_,c)=>String(cell(ws,0,c)||'').toLowerCase());
+  const hasHeader = headerRow.some(x=>/الاسم|name/.test(x));
+  if(hasHeader){
+    headerMap = {name:null, phone:null, id:null, spec:null};
+    headerRow.forEach((h,idx)=>{
+      if(headerMap.name===null && /الاسم|name/.test(h)) headerMap.name=idx;
+      if(headerMap.phone===null && /الجوال|الهاتف|phone|mobile|رقم/.test(h)) headerMap.phone=idx;
+      if(headerMap.id===null && /الهوية|id|رقم الهوية/.test(h)) headerMap.id=idx;
+      if(headerMap.spec===null && /التخصص|subject|المادة/.test(h)) headerMap.spec=idx;
+    });
+  }
+  const startRow = hasHeader?1:0;
+  const map={};
+  for(let r=startRow;r<R;r++){
+    const name = String(cell(ws,r,headerMap.name??0)||'').trim();
+    let phone = String(cell(ws,r,headerMap.phone??1)||'').replace(/[^0-9]/g,'');
+    const id    = headerMap.id!=null ? String(cell(ws,r,headerMap.id)||'').trim() : '';
+    const spec  = headerMap.spec!=null ? String(cell(ws,r,headerMap.spec)||'').trim() : '';
+    if(!name) continue;
+    const rec = map[name] || {};
+    if(phone) rec.phone = phone;
+    if(id) rec.id = id;
+    if(spec) rec.spec = spec;
+    map[name]=rec;
   }
   return map;
 }
@@ -923,12 +985,63 @@ function toggleMenu(btnId){
   menu.style.visibility='visible';
 
   OPEN_MENU_ID = menuId;
+
+  if(menuId==='menuWA') renderTeacherDirectory($('#waSearch')?.value||'');
 }
 document.addEventListener('click', (e)=>{
   if(e.target.closest('.menu') || e.target.closest('.ib')) return;
   closeAllMenus();
 });
 window.addEventListener('resize', ()=>{ if(OPEN_MENU_ID){ const id = Object.keys(MENU_MAP).find(k=>MENU_MAP[k]===OPEN_MENU_ID); if(id) toggleMenu(id); }}, {passive:true});
+
+/* ===== دليل المعلّمين (قائمة واتساب) ===== */
+function renderTeacherDirectory(filter=''){
+  const list = $('#waList'); const ctn = $('#waCount'); if(!list||!ctn) return;
+  const q = String(filter||'').trim().toLowerCase();
+  const entries = Object.entries(PHONEBOOK||{}).map(([name,rec])=>({name, ...rec}));
+  (TEACHERS||[]).forEach(n=>{ if(!entries.find(e=>e.name===n)) entries.push({name:n, phone:(PHONEBOOK[n]||{}).phone||'', id:(PHONEBOOK[n]||{}).id||'', spec:(PHONEBOOK[n]||{}).spec||''}); });
+  const filtered = entries
+    .filter(e=>{
+      if(!q) return true;
+      const hay = `${e.name} ${e.spec||''} ${e.id||''} ${e.phone||''}`.toLowerCase();
+      return hay.includes(q);
+    })
+    .sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+  ctn.textContent = `${filtered.length} معلّم`;
+  list.innerHTML = filtered.map(e=>{
+    const phoneClean = String(e.phone||'').replace(/[^0-9]/g,'');
+    const spec = e.spec? ` — ${e.spec}` : '';
+    const sub = e.id? ` • ${e.id}` : '';
+    return `<div class="trow">
+      <div>
+        <div class="tname">${e.name}</div>
+        <div class="tmeta">${phoneClean || '—'}${spec}${sub}</div>
+      </div>
+      <div><button class="wa-btn" data-wa-person="${e.name}">واتساب</button></div>
+    </div>`;
+  }).join('');
+
+  $$('#waList [data-wa-person]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const name = btn.dataset.waPerson;
+      const rec = PHONEBOOK[name]||{};
+      let phone = String(rec.phone||'').replace(/[^0-9]/g,'');
+      if(!phone){
+        const inp = prompt(`لا يوجد رقم لـ "${name}".\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):`);
+        if(!inp) return;
+        phone = String(inp).replace(/[^0-9]/g,'');
+        if(phone.length<9) return alert('رقم غير صالح.');
+        PHONEBOOK[name] = {...rec, phone};
+        ls.set('smart_phonebook', PHONEBOOK);
+        renderTeacherDirectory($('#waSearch').value||'');
+      }
+      const msg = `السلام عليكم ${name}
+تواصل من إدارة المدرسة. شكرًا لتعاونكم الدائم.`;
+      const url=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+      window.open(url,'_blank');
+    };
+  });
+}
 
 /* ===== ساعة + تحديثات ===== */
 function updateClock(){
@@ -985,18 +1098,27 @@ function bindUI(){
   };
   $('#saveTimes').onclick = ()=>{ saveTimesFromInputs(); updateAll(); alert('تم حفظ المواقيت ✔'); };
 
-  // دفتر الهواتف
+  // دليل المعلمين — استيراد + بحث + عرض
   $('#pickPhonebook').onclick = ()=>$('#filePhonebook').click();
   $('#filePhonebook').onchange = e=>{
     const f=e.target.files[0]; if(!f) return;
     readWorkbookSmart(f, wb=>{
       const ws = wb.Sheets[wb.SheetNames[0]];
-      PHONEBOOK = {...PHONEBOOK, ...parsePhonebookSheet(ws)};
+      const add = parsePhonebookSheet(ws);
+      PHONEBOOK = {...PHONEBOOK, ...add};
+      const merged = new Set(TEACHERS||[]);
+      Object.keys(add).forEach(n=>merged.add(n));
+      TEACHERS = [...merged];
       ls.set('smart_phonebook', PHONEBOOK);
-      alert('تم تحديث دفتر الهواتف ✔');
+      ls.set('smart_teachers_list', TEACHERS);
+      refreshDatalists();
+      alert('تم تحديث بيانات المعلمين ✔');
+      renderTeacherDirectory($('#waSearch')?.value||'');
     });
     e.target.value='';
   };
+  $('#waSearch').addEventListener('input', e=>renderTeacherDirectory(e.target.value||''));
+  $('#waShowAll').onclick = ()=>{ $('#waSearch').value=''; renderTeacherDirectory(''); };
 
   // سحابة
   $('#saveSnapshot').onclick = ()=>{
@@ -1010,7 +1132,7 @@ function bindUI(){
     r.readAsText(f,'utf-8'); e.target.value='';
   };
 
-  // اقتراح سريع لأسماء المناوبة (عشوائي من القائمة)
+  // المناوبة
   $('#dutySuggest').onclick = ()=>{
     const day=dayNameArabicFromDate(new Date());
     const state = ensureDutyFixed(day);
