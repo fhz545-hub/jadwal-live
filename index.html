@@ -114,8 +114,8 @@
     .abs-form,.edit-form{position:absolute;inset:auto 8px 8px 8px;background:#fff;border:1px solid #e9d3d3;border-radius:12px;padding:8px;box-shadow:0 8px 20px #0000001a;z-index:2}
     .abs-form h5,.edit-form h5{margin:0 0 6px;font-size:12px;color:#8a1f1f}
     .abs-form .row,.edit-form .row{display:grid;grid-template-columns:1fr;gap:6px}
-    .abs-form input,.abs-form button,.edit-form input,.edit-form button{width:100%;padding:6px 8px;border:1px solid #e6efec;border-radius:8px}
-    .abs-form .actions,.edit-form .actions{display:flex;gap:6px;margin-top:6px}
+    .abs-form input,.abs-form button,.abs-form select,.edit-form input,.edit-form button{width:100%;padding:6px 8px;border:1px solid #e6efec;border-radius:8px}
+    .abs-form .actions,.edit-form .actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
 
     .tile.absent{background:var(--danger-bg); border-color:var(--danger-border)}
     .tile.absent .badge{background:#fff0f0;color:var(--danger-ink);border-color:var(--danger-border)}
@@ -147,11 +147,14 @@
     .phase-pill{display:inline-block;border:1px dashed #dfe9e6;background:#f8fcfb;border-radius:999px;padding:3px 10px;font-size:12px;color:#0b4035}
     .duty-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 8px}
     .duty-tools .btn-ghost{font-size:12px;padding:6px 10px}
+
     .duty-row{
-      display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center;
+      display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
       border:1px solid #edf3f2; border-radius:12px; padding:8px 10px; margin-bottom:8px;
       background:linear-gradient(180deg,#ffffff 0%,#f9fffc 100%); font-size:14px; line-height:1.7
     }
+    .drag-handle{cursor:grab; user-select:none; opacity:.6; padding:0 6px}
+    .duty-row.dragging{opacity:.7}
     .duty-name input{width:100%; border:1px solid #e6efec; border-radius:10px; padding:8px 10px; font-size:14px}
     .duty-actions{display:flex; gap:6px}
     .mini{display:inline-flex; align-items:center; gap:4px; border:1px solid #e6efec; background:#fff; padding:6px 9px; border-radius:999px; font-size:12px; cursor:pointer}
@@ -332,7 +335,7 @@
 /* ===== أدوات عامة ===== */
 const $ = s=>document.querySelector(s), $$ = s=>Array.from(document.querySelectorAll(s));
 const ls = { get(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))}, del(k){localStorage.removeItem(k)} };
-function toArabicDigits(str){return String(str).replace(/[0-9]/g,d=>'٠١٢٢٣٤٥٦٧٨٩'[d]||d);}
+function toArabicDigits(str){return String(str).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);}
 function dayNameArabicFromDate(dt){return ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][dt.getDay()]||'الأحد'}
 function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${da}/${m}/${y}`}
 function fmtHijri(d){try{return new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'2-digit',month:'long',year:'numeric'}).format(d)}catch{return fmtDate(d)}}
@@ -379,7 +382,7 @@ let PHONEBOOK = ls.get('smart_phonebook', {});
 let ABSENCES  = ls.get('smart_absences', {});
 let DAYS_LIST = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
 
-/* عند فتح نموذج غياب/تحرير، نغلق تحديث البطاقة المعنية */
+/* يغلق إعادة تحديث البطاقة أثناء الكتابة */
 let LOCKED_TILE_ID = null;
 
 function refreshDatalists(){
@@ -388,6 +391,14 @@ function refreshDatalists(){
     CLASSES.first.map(x=>x.classId), CLASSES.second.map(x=>x.classId), CLASSES.third.map(x=>x.classId)
   ).map(v=>`<option value="${v}">`).join('');
   $('#subjectsList').innerHTML = (SUBJECTS||[]).map(n=>`<option value="${n}">`).join('');
+}
+
+/* المنتظرون الآن (حسب الحصة الحالية) */
+function currentWaiters(day, period){
+  const W = TIMETABLE.filter(r=>r.day===day && Number(r.period)===Number(period) && /انتظار/i.test(String(r.subject||'')) && r.teacher)
+                     .map(r=>({teacher:r.teacher, classId:r.classId}));
+  // إزالة التكرار بالاسم
+  const seen=new Set(); return W.filter(w=>{ if(seen.has(w.teacher)) return false; seen.add(w.teacher); return true; });
 }
 
 /* رسم البلاطات + المؤشر */
@@ -439,9 +450,7 @@ function updateTiles(dayName,now){
   classes.forEach(cls=>{
     const tile=$(`#tile_${cls.classId}`); if(!tile) return;
 
-    // لا نلمس البطاقة إذا كان نموذج الغياب/التحرير مفتوحًا عليها
     if(LOCKED_TILE_ID===cls.classId && (tile.querySelector('.abs-form') || tile.querySelector('.edit-form'))){
-      // لكن نظهر إبراز "الآن" إن كانت ضمن الحصة الحالية
       if(slot.kind==='period') tile.classList.add('now'); else tile.classList.remove('now');
       return;
     }
@@ -479,7 +488,7 @@ function updateTiles(dayName,now){
   });
 }
 
-/* نماذج الغياب/التحرير */
+/* نماذج الغياب/التحرير + قائمة المنتظرين + واتساب */
 function openAbsForm(classId){
   const now=new Date(); const day=dayNameArabicFromDate(now); const slot=currentSlot(day,now);
   if(slot.kind!=='period'){ return alert('ليست ضمن وقت حصة.'); }
@@ -487,23 +496,36 @@ function openAbsForm(classId){
   tile.querySelectorAll('.abs-form').forEach(n=>n.remove());
   const ent=findEntry(day, period, classId) || {};
   const ab=ABSENCES[`${day}|${period}|${classId}`] || {absent:(ent.teacher||''), cover:''};
+
+  const waiters = currentWaiters(day, period);
+  const waitOpts = ['<option value="">— اختر من المنتظرين الآن —</option>']
+      .concat(waiters.map(w=>`<option value="${w.teacher}">${w.teacher} — ${w.classId}</option>`)).join('');
+
   const form=document.createElement('div'); form.className='abs-form';
   form.innerHTML=`<h5>غياب/تغطية — ${day} الحصة ${toArabicDigits(period)}</h5>
     <div class="row">
       <input id="af_abs_${classId}" list="teachersList" placeholder="المعلم الغائب" value="${ab.absent||''}">
       <input id="af_cov_${classId}" list="teachersList" placeholder="المعلم المكلّف بالتغطية" value="${ab.cover||''}">
+      <select id="af_wait_${classId}">${waitOpts}</select>
     </div>
     <div class="actions">
       <button class="mini" id="af_save_${classId}">حفظ</button>
+      <button class="mini" id="af_wa_${classId}">إرسال واتساب</button>
       <button class="mini" id="af_cancel_${classId}">إلغاء</button>
     </div>`;
   tile.appendChild(form);
 
-  LOCKED_TILE_ID = classId;  // قفل تحديث البطاقة أثناء الكتابة
+  LOCKED_TILE_ID = classId;
 
   const closeForm=()=>{ form.remove(); LOCKED_TILE_ID=null; updateAll(); };
-
   $('#af_cancel_'+classId).onclick = closeForm;
+
+  // اختيار المنتظر يملأ المكلّف
+  $('#af_wait_'+classId).onchange = ()=>{
+    const v=$('#af_wait_'+classId).value;
+    if(v) $('#af_cov_'+classId).value=v;
+  };
+
   $('#af_save_'+classId).onclick = ()=>{
     const absent=$('#af_abs_'+classId).value.trim();
     const cover=$('#af_cov_'+classId).value.trim();
@@ -515,7 +537,36 @@ function openAbsForm(classId){
     refreshDatalists();
     closeForm();
   };
+
+  // واتساب مباشر
+  $('#af_wa_'+classId).onclick = ()=>{
+    const absent=$('#af_abs_'+classId).value.trim() || 'غير محدد';
+    const cover =$('#af_cov_'+classId).value.trim();
+    if(!cover) return alert('اختر المعلّم المكلّف أولًا (من الحقل أو من قائمة المنتظرين).');
+
+    // هاتف
+    let phone = String((PHONEBOOK[cover]||{}).phone||'').replace(/[^0-9]/g,'');
+    if(!phone){
+      const inp = prompt('لا يوجد رقم لهذا المعلّم.\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):');
+      if(!inp) return;
+      phone = String(inp).replace(/[^0-9]/g,'');
+      if(phone.length<9) return alert('رقم غير صالح.');
+      PHONEBOOK[cover] = {...(PHONEBOOK[cover]||{}), phone};
+      ls.set('smart_phonebook', PHONEBOOK);
+    }
+
+    const tr = timeRangeOfPeriod(period);
+    const msg=`السلام عليكم ${cover}
+تكليف تغطية حصة ${periodNameAr(period)}
+الفصل: ${classId}
+المعلم الغائب: ${absent}
+الوقت: ${tr}
+شاكرين لكم تعاونكم وتفعيل الحصة. 🌟`;
+    const url=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    window.open(url,'_blank');
+  };
 }
+
 function openEditForm(classId){
   const now=new Date(); const day=dayNameArabicFromDate(now); const slot=currentSlot(day,now);
   if(slot.kind!=='period'){ return alert('ليست ضمن وقت حصة.'); }
@@ -584,20 +635,20 @@ function renderDutyPanel(day){
   setDutyPhaseLabel();
 
   const rows = state.names.map((name,idx)=>`
-    <div class="duty-row" data-idx="${idx}">
+    <div class="duty-row" data-idx="${idx}" draggable="true">
+      <div class="drag-handle">⠿</div>
       <div class="duty-name">
         <input list="teachersList" placeholder="اسم المعلّم" value="${name||''}">
       </div>
       <div class="duty-actions">
         <button class="mini" data-wa="${idx}">واتساب</button>
-        <button class="mini" data-up="${idx}">▲</button>
-        <button class="mini" data-dn="${idx}">▼</button>
         <button class="mini" data-clr="${idx}">✕</button>
       </div>
     </div>
   `).join('');
   $('#dutyList').innerHTML = rows;
 
+  // تعديل الاسم + حفظ
   $$('#dutyList .duty-row input').forEach(inp=>{
     inp.onchange = ()=>{
       const idx = parseInt(inp.closest('.duty-row').dataset.idx);
@@ -606,16 +657,25 @@ function renderDutyPanel(day){
       if(inp.value && !TEACHERS.includes(inp.value)){ TEACHERS.push(inp.value); ls.set('smart_teachers_list', TEACHERS); refreshDatalists(); }
     };
   });
-  $$('#dutyList [data-up]').forEach(btn=>btn.onclick=()=>{
-    const i=parseInt(btn.dataset.up); if(i<=0) return;
-    [state.names[i-1],state.names[i]]=[state.names[i],state.names[i-1]];
-    ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
+
+  // سحب لإعادة الترتيب
+  let dragIndex=null;
+  $$('#dutyList .duty-row').forEach(row=>{
+    row.addEventListener('dragstart', e=>{ dragIndex=parseInt(row.dataset.idx); row.classList.add('dragging'); });
+    row.addEventListener('dragend',   e=>{ dragIndex=null; row.classList.remove('dragging'); });
+    row.addEventListener('dragover',  e=>e.preventDefault());
+    row.addEventListener('drop',      e=>{
+      e.preventDefault();
+      const toIdx=parseInt(row.dataset.idx);
+      if(dragIndex===null || dragIndex===toIdx) return;
+      const [moved]=state.names.splice(dragIndex,1);
+      state.names.splice(toIdx,0,moved);
+      ls.set('smart_duty_fixed', DUTY_FIXED);
+      renderDutyPanel(day);
+    });
   });
-  $$('#dutyList [data-dn]').forEach(btn=>btn.onclick=()=>{
-    const i=parseInt(btn.dataset.dn); if(i>=state.names.length-1) return;
-    [state.names[i],state.names[i+1]]=[state.names[i+1],state.names[i]];
-    ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
-  });
+
+  // حذف
   $$('#dutyList [data-clr]').forEach(btn=>btn.onclick=()=>{
     state.names[parseInt(btn.dataset.clr)]='';
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
@@ -714,7 +774,7 @@ function sheetSize(ws){ const ref=ws['!ref']; if(!ref) return {R:0,C:0,range:nul
 const DAY_CANON={'الأحد':'الأحد','الاحد':'الأحد','أحد':'الأحد','احد':'الأحد','sun':'الأحد','sunday':'الأحد',
   'الاثنين':'الاثنين','إثنين':'الاثنين','اثنين':'الاثنين','mon':'الاثنين','monday':'الاثنين',
   'الثلاثاء':'الثلاثاء','ثلاثاء':'الثلاثاء','tue':'الثلاثاء','tuesday':'الثلاثاء',
-  'الأربعاء':'الأربعاء','اربعاء':'الأربعاء','wed':'الأربعاء','wednesday':'الأربعاء',
+  'الأربعاء':'الأربعاء','wed':'الأربعاء','wednesday':'الأربعاء',
   'الخميس':'الخميس','thu':'الخميس','thursday':'الخميس'};
 function canonDay(v){ const s=String(v||'').trim(); const k=s.toLowerCase(); return DAY_CANON[k] || DAY_CANON[s] || ''; }
 function looksPeriod(v){
@@ -871,7 +931,6 @@ document.addEventListener('click', (e)=>{
 window.addEventListener('resize', ()=>{ if(OPEN_MENU_ID){ const id = Object.keys(MENU_MAP).find(k=>MENU_MAP[k]===OPEN_MENU_ID); if(id) toggleMenu(id); }}, {passive:true});
 
 /* ===== ساعة + تحديثات ===== */
-function setDutyPhaseLabel(){ const ph = currentDutyPhase(new Date()); $('#phaseLabel').textContent = `${ph.label} ${ph.start && ph.end ? `(${ph.start}–${ph.end})` : ''}`; }
 function updateClock(){
   const now=new Date();
   const hh=String(now.getHours()).padStart(2,'0');
@@ -883,7 +942,6 @@ function updateClock(){
   updateTiles(day, now);
   updateMidIndicator(day, now);
 
-  // لا نعيد رسم لوحة المناوبة أثناء الكتابة في حقولها
   if(document.querySelector('#dutyPanel input:focus')){ setDutyPhaseLabel(); }
   else{ renderDutyPanel(day); }
 }
@@ -951,6 +1009,17 @@ function bindUI(){
     const r=new FileReader(); r.onload=ev=>{ try{ const o=JSON.parse(ev.target.result); applySnapshot(o); alert('تم الاستعادة ✔'); }catch{ alert('ملف غير صالح'); } };
     r.readAsText(f,'utf-8'); e.target.value='';
   };
+
+  // اقتراح سريع لأسماء المناوبة (عشوائي من القائمة)
+  $('#dutySuggest').onclick = ()=>{
+    const day=dayNameArabicFromDate(new Date());
+    const state = ensureDutyFixed(day);
+    const pool = TEACHERS.filter(Boolean);
+    for(let i=0;i<7;i++){ state.names[i]=pool[(Math.random()*pool.length)|0]||''; }
+    ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
+  };
+  $('#dutySave').onclick=()=>{ ls.set('smart_duty_fixed', DUTY_FIXED); alert('تم حفظ المناوبة ✔'); };
+  $('#dutyClear').onclick=()=>{ const day=dayNameArabicFromDate(new Date()); ensureDutyFixed(day).names=Array(7).fill(''); ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day); };
 }
 
 /* ===== تشغيل ===== */
