@@ -45,15 +45,26 @@
     .ib[disabled]{opacity:.5;cursor:not-allowed}
     .ib:hover{transform:translateY(-1px);background:#f6fbf9}
     .ib svg{width:20px;height:20px;color:#0b534a}
-    .menu{position:absolute;top:44px;right:0;min-width:460px;background:#fff;border:1px solid #dceae7;border-radius:12px;box-shadow:0 12px 30px #00000014;padding:10px;display:none;z-index:90}
-    .menu.open{display:block}
+
+    /* ===== الرفّ أسفل الأيقونات لعرض القوائم (بدون تداخل مع المحتوى) ===== */
+    .menus-shelf{display:none; width:100%; margin-top:8px}
+    .hero.menu-open .menus-shelf{display:block}
+    .menus-shelf-inner{position:relative; width:100%}
+
+    /* القوائم المنسدلة داخل الرفّ */
+    .menu{
+      display:none;
+      background:#fff;border:1px solid #dceae7;border-radius:12px;
+      box-shadow:0 12px 30px #00000014;padding:10px;z-index:1;
+      width:max-content;min-width:320px;max-width:min(92vw,760px);max-height:min(70vh,560px);overflow:auto;
+      margin-inline-start:var(--menu-offset,0px);
+    }
+    .menu.open{display:inline-block}
     .menu h4{margin:4px 6px 8px;font-size:13px;color:#0b4035}
     .menu .row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .menu label{font-size:12px;color:#0b4035}
-    .menu input,.menu textarea,.menu button,.menu select{width:100%;padding:6px 8px;border:1px solid #d8e7e3;border-radius:8px;background:#fff;font-family:"Tajawal"}
+    .menu input,.menu textarea,.menu button,.menu select{width:100%;padding:6px 8px;border:1px solid #d8e7e3;border-radius:8px;background:#fff;font-family:"Tajawal";font-size:12px}
     .btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--chip-border);background:var(--chip);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
     .btn-ghost:hover{background:#eefaf5}
-    .lock-badge{font-size:11px;background:#fff;border:1px solid #e6efec;color:#0b4035;border-radius:999px;padding:2px 8px;margin-right:6px}
 
     /* ===== البطاقة الرئيسية ===== */
     .card{
@@ -61,11 +72,8 @@
       box-shadow:0 6px 24px #28a48a22, 0 2px 10px #00000010;
     }
 
-    .bigTitle{display:none}
-
-    /* ===== مصفوفة: لوحة الشعب + عمود المناوبين/المشرفين ===== */
-    /* رجعنا عرض عمود المناوبة للصيغة السابقة (أضيق) */
-    .board{display:grid;grid-template-columns:1fr 480px;gap:10px;align-items:start}
+    /* ===== لوحة الشعب + عمود المناوبة ===== */
+    .board{display:grid;grid-template-columns:1fr minmax(360px,480px);gap:10px;align-items:start}
     @media (max-width:1200px){ .board{grid-template-columns:1fr} }
 
     /* ===== لوحات الشعب ===== */
@@ -85,16 +93,12 @@
     .band.third{--accent:var(--third)}
     .band .tile{border-top:4px solid var(--accent)}
 
-    .bandTitle.first .dot{background:var(--first)}
-    .bandTitle.second .dot{background:var(--second)}
-    .bandTitle.third .dot{background:var(--third)}
-
     .tile{
       position:relative;background:linear-gradient(180deg,#ffffff 0%,#fbfffd 100%);
-      border:1px solid #e0ece9;border-radius:16px;padding:12px;min-height:148px;overflow:hidden;
-      box-shadow:0 6px 16px #0000000e; transition:.2s;
+      border:1px solid #dfeeea;border-radius:16px;padding:12px;min-height:148px;overflow:hidden;
+      box-shadow:0 6px 18px #0a3e330e; transition:.2s;
     }
-    .tile:hover{transform:translateY(-1px); box-shadow:0 10px 20px #00000012}
+    .tile:hover{transform:translateY(-1px); box-shadow:0 10px 22px #0a3e3312}
     .badge{position:absolute;top:8px;left:8px;background:#e6fbf5;color:#0b534a;border:1px solid #bde7dc;padding:1px 8px;border-radius:999px;font-size:11px}
     .section{font-weight:800;color:#0b4035;font-size:15px;margin-bottom:8px;text-align:center}
     .subject{font-size:15px;color:#113;text-align:center}
@@ -108,7 +112,6 @@
     .abs-btn{right:8px}
     .abs-clear{right:8px;top:38px}
     .edit-btn{left:8px;border-color:#cfe8e1;color:#0b534a}
-    .abs-btn[disabled],.edit-btn[disabled],.abs-clear[disabled]{opacity:.5;cursor:not-allowed}
 
     .abs-form,.edit-form{position:absolute;inset:auto 8px 8px 8px;background:#fff;border:1px solid #e9d3d3;border-radius:12px;padding:8px;box-shadow:0 8px 20px #0000001a}
     .abs-form h5,.edit-form h5{margin:0 0 6px;font-size:12px;color:#8a1f1f}
@@ -120,63 +123,42 @@
     .tile.absent .badge{background:#fff0f0;color:var(--danger-ink);border-color:var(--danger-border)}
     .chip{display:inline-block;background:#fff;border:1px solid #e6efec;border-radius:999px;padding:2px 8px;font-size:11px;margin-top:4px}
 
-    /* ===== مؤشر البطارية ===== *//* ===== موضع المؤشر بين أول/ثاني: تحت (أول ثالث/رابع/خامس) وفوق صف ثاني ===== */
-#band_first .mid-indicator{
-  /* شبكة أول ثانوي: ضع المؤشر في الصف الثاني والأعمدة 3–5 */
-  grid-column: 3 / span 3;   /* تحت "أول ثالث/رابع/خامس" */
-  grid-row: 2;               /* نفس صف "أول-6/7" لكن في الأعمدة الفارغة */
-  justify-self: center;      /* يتوسّط أفقيًا ضمن هذا النطاق */
-  align-self: center;        /* تمركز رأسي داخل صفّه */
-  display:flex; align-items:center; justify-content:center;
-  margin: 6px 0 12px;        /* مسافة لطيفة فوق/تحت */
-}
+    /* ===== المؤشر المتوسط ===== */
+    .mid-indicator{grid-column:3 / 6; grid-row:2; justify-self:center; display:flex; align-items:center; justify-content:center; margin-top:2px;}
+    @media (max-width:900px){ .mid-indicator{grid-column:1 / -1; grid-row:auto; justify-self:center} }
+    .mid-card{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;background:#fff;border:1px solid #e0ece9;border-top:4px solid var(--first);border-radius:14px;padding:10px 12px;box-shadow:0 6px 16px #0000000f;min-width:320px}
+    .mid-title{font-weight:800;color:#0b4035}
+    .mid-sub{font-size:12px;color:#345}
+    .bat{display:flex;align-items:center;gap:10px}
+    .bat-shell{position:relative;width:280px;max-width:60vw;height:18px;border:2px solid #0b534a;border-radius:8px;overflow:hidden;background:linear-gradient(90deg,#fefefe,#f5fffb)}
+    .bat-shell::after{content:"";position:absolute;right:-8px;top:3px;width:6px;height:12px;border:2px solid #0b534a;border-left:none;border-radius:0 6px 6px 0;background:#fff}
+    .bat-fill{height:100%;width:0%;transition:width .7s ease; background:linear-gradient(90deg,#e65353,#ffd24d,#53c77a)}
+    .bat-num{font-family:"Cairo";font-weight:900;font-size:18px;letter-spacing:.3px;color:#0b4035;min-width:86px;text-align:center}
+    .flip{animation:flip .6s ease}
+    @keyframes flip {0%{transform:rotateX(0)}50%{transform:rotateX(180deg)}100%{transform:rotateX(360deg)}}
 
-/* على الشاشات الصغيرة: يمتد بعرض الشبكة ويتمركز */
-@media (max-width:900px){
-  #band_first .mid-indicator{
-    grid-column: 1 / -1;
-    justify-self: center;
-  }
-}
-
-/* مظهر بطاقة المؤشر (كما هو) */
-.mid-card{
-  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;
-  background:#fff;border:1px solid #e0ece9;border-top:4px solid var(--first);
-  border-radius:14px;padding:10px 12px;box-shadow:0 6px 16px #0000000f;min-width:320px
-}
-.mid-title{font-weight:800;color:#0b4035}
-.mid-sub{font-size:12px;color:#345}
-.bat{display:flex;align-items:center;gap:10px}
-.bat-shell{position:relative;width:280px;max-width:60vw;height:18px;border:2px solid #0b534a;border-radius:8px;overflow:hidden;background:linear-gradient(90deg,#fefefe,#f5fffb)}
-.bat-shell::after{content:"";position:absolute;right:-8px;top:3px;width:6px;height:12px;border:2px solid #0b534a;border-left:none;border-radius:0 6px 6px 0;background:#fff}
-.bat-fill{height:100%;width:0%;transition:width .7s ease; background:linear-gradient(90deg,#e65353,#ffd24d,#53c77a)}
-.bat-num{font-family:"Cairo";font-weight:900;font-size:18px;letter-spacing:.3px;color:#0b4035;min-width:86px;text-align:center}
-.flip{animation:flip .6s ease}
-@keyframes flip {0%{transform:rotateX(0)}50%{transform:rotateX(180deg)}100%{transform:rotateX(360deg)}}
-
-    /* ===== عمود المناوبين/المشرفين (أضيق + يمتد رأسيًا) ===== */
+    /* ===== عمود المناوبة/الإشراف ===== */
     .duty-card{
       position:sticky; top:60px; background:var(--ctl-bg); border:1px solid var(--ctl-border);
       border-top:4px solid var(--duty-accent); border-radius:16px; padding:12px;
-      box-shadow:0 6px 22px #ff5a5a14, 0 2px 10px #0000000d;
-      width:100%;
+      box-shadow:0 6px 22px #ff5a5a14, 0 2px 10px #0000000d; width:100%;
     }
     .duty-title{margin:0 0 6px; font-size:15px; color:var(--ink); font-weight:800}
     .phase-pill{display:inline-block;border:1px dashed #dfe9e6;background:#f8fcfb;border-radius:999px;padding:3px 10px;font-size:12px;color:#0b4035}
     .duty-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 8px}
     .duty-tools .btn-ghost{font-size:12px;padding:6px 10px}
-
-    /* صفوف أوسع ومتباعدة بدون تداخل */
     .duty-row{
       display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center;
-      border:1px solid #edf3f2; border-radius:12px; padding:10px 12px; margin-bottom:10px;
-      background:linear-gradient(180deg,#ffffff 0%,#f9fffc 100%); font-size:14px; line-height:1.9
+      border:1px solid #edf3f2; border-radius:12px; padding:8px 10px; margin-bottom:8px;
+      background:linear-gradient(180deg,#ffffff 0%,#f9fffc 100%); font-size:14px; line-height:1.7
     }
     .duty-name input{width:100%; border:1px solid #e6efec; border-radius:10px; padding:8px 10px; font-size:14px}
-    .duty-actions{display:flex; gap:8px}
-    .mini{display:inline-flex; align-items:center; gap:4px; border:1px solid #e6efec; background:#fff; padding:7px 10px; border-radius:999px; font-size:12px; cursor:pointer}
+    .duty-actions{display:flex; gap:6px}
+    .mini{display:inline-flex; align-items:center; gap:4px; border:1px solid #e6efec; background:#fff; padding:6px 9px; border-radius:999px; font-size:12px; cursor:pointer}
     .mini:hover{background:#f9fcfb}
+
+    .duty-guide{margin-top:10px; border-top:1px dashed #e6efec; padding-top:8px}
+    .duty-guide li{list-style:none; white-space:nowrap; font-size:12px; line-height:1.9; color:#0b4035; opacity:.92}
 
     @media (max-width:1200px){
       .duty-card{position:static; min-height:auto; margin-top:12px}
@@ -192,7 +174,7 @@
   <header>
     <div class="h-wrap">
       <div class="h-row">
-        <div class="title">جدول اليعقوبي الثانوية — عرض لحظي <span id="lockState" class="lock-badge">🔒 محرّر مقفول</span></div>
+        <div class="title">جدول اليعقوبي الثانوية — عرض لحظي</div>
         <div class="clock" id="clock">--:--:--</div>
       </div>
       <div class="dateweek" id="dateWeek">—</div>
@@ -206,28 +188,15 @@
 
   <main>
     <!-- الأيقونات -->
-    <section class="hero">
+    <section class="hero" id="hero">
       <div class="iconbar">
-        <!-- قفل/فتح -->
-        <div class="ib" id="btnLock" title="أمان التحرير (مدير)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <div class="menu" id="menuLock">
-            <h4>أمان التحرير (للمدير فقط)</h4>
-            <div class="row" style="grid-template-columns:1fr 1fr">
-              <button id="setPin" class="btn-ghost">تعيين/تغيير رمز المدير (٦ أرقام)</button>
-              <button id="toggleEdit" class="btn-ghost">فتح/إغلاق التحرير</button>
-            </div>
-            <small style="color:#0b534a">الرمز يجب أن يكون <b>٦ أرقام</b> ويُحفظ مُشفّرًا محليًا. عند الإغلاق تصبح الصفحة للعرض فقط.</small>
-          </div>
-        </div>
-
         <!-- استيراد الجدول -->
         <div class="ib" id="btnImport" title="استيراد الجدول العام (Excel/CSV)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
           <div class="menu" id="menuImport">
             <h4>استيراد الجدول العام — مطابقة خوارزمية</h4>
             <div class="row"><button id="pickTable" class="btn-ghost">اختر ملف Excel/CSV</button></div>
-            <small style="color:#0b4035">يدعم الجداول العريضة: الصف الأول أيام، الصف الثاني الحصص (١–٧)، العمود الأول الشعبة، وكل خلية (مادة/معلم) أو (مادة\nمعلم). يحاول التقاط أزمنة الحصص إن وُجدت.</small>
+            <small style="color:#0b4035">الصف الأول أيام، الصف الثاني الحصص (١–٧)، العمود الأول الشعبة، وكل خلية (مادة/معلم) أو (مادة\nمعلم).</small>
           </div>
         </div>
 
@@ -236,7 +205,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <div class="menu" id="menuTimes">
             <h4>مواقيت الحصص (صيفي/شتوي + تحرير يدوي)</h4>
-            <div class="row" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="row controls" style="grid-template-columns:1fr 1fr 1fr">
               <label>الوضع
                 <select id="seasonMode">
                   <option value="custom">مخصص</option>
@@ -247,7 +216,7 @@
               <button id="applySeason" class="btn-ghost" style="align-self:end">تطبيق الوضع</button>
               <button id="saveTimes" class="btn-ghost" style="align-self:end">حفظ المواقيت</button>
             </div>
-            <div class="row" style="grid-template-columns:repeat(2,1fr);gap:6px">
+            <div class="row times-grid" style="grid-template-columns:repeat(2,minmax(140px,1fr));gap:6px">
               <label>الاصطفاف (بدء)<input type="time" id="t_assm_s"></label>
               <label>الاصطفاف (نهاية)<input type="time" id="t_assm_e"></label>
               <label>الحصة 1 (بدء)<input type="time" id="t_p1_s"></label>
@@ -272,7 +241,7 @@
           </div>
         </div>
 
-        <!-- واتساب: دفتر الهواتف -->
+        <!-- واتساب -->
         <div class="ib" id="btnWA" title="واتساب: دفتر الهواتف + إشعار">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.94 11.94 0 0 0 12.06 0C5.4 0 0 5.4 0 12.06c0 2.12.56 4.16 1.62 5.96L0 24l6.16-1.6a12.02 12.02 0 0 0 5.9 1.54h.01c6.66 0 12.06-5.4 12.06-12.06 0-3.23-1.26-6.26-3.48-8.48Zm-8.46 18.04h-.01a10.3 10.3 0 0 1-5.24-1.44l-.38-.22-3.66.95.98-3.56-.25-.37a10.31 10.31 0 1 1 8.56 4.64ZM17 14.2c-.28-.14-1.64-.8-1.9-.9-.26-.1-.45-.14-.64.14-.19.28-.73.9-.9 1.08-.17.19-.33.21-.61.07-.28-.14-1.18-.44-2.26-1.4-.84-.75-1.41-1.68-1.57-1.96-.17-.28-.02-.43.12-.57.12-.12.28-.33.42-.49.14-.16.19-.28.28-.47.09-.19.05-.35-.02-.49-.07-.14-.64-1.55-.88-2.12-.23-.56-.47-.48-.64-.49-.16-.01-.35-.01-.54-.01-.19 0-.49.07-.75.35-.26.28-1 1-1 2.43 0 1.43 1.02 2.81 1.16 3 .14.19 2 3.05 4.85 4.28.68.29 1.21.46 1.62.58.68.22 1.3.19 1.79.12.55-.08 1.64-.67 1.87-1.32.23-.65.23-1.21.16-1.32-.07-.11-.26-.18-.54-.32Z"/></svg>
           <div class="menu" id="menuWA">
@@ -281,21 +250,26 @@
           </div>
         </div>
 
-        <!-- سحابة: حفظ/استعادة JSON -->
+        <!-- سحابة -->
         <div class="ib" id="btnCloud" title="حفظ/استعادة البيانات (JSON)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><path d="M16 16l-4 4-4-4"/><path d="M12 20V10"/></svg>
           <div class="menu" id="menuCloud">
             <h4>البيانات الداخلية</h4>
-            <div style="display:flex;gap:8px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn-ghost" id="saveSnapshot">حفظ ملف بيانات (JSON)</button>
               <button class="btn-ghost" id="loadSnapshot">استعادة من ملف</button>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- رفّ القوائم (تحت الأيقونات مباشرة) -->
+      <div class="menus-shelf">
+        <div class="menus-shelf-inner" id="menusShelf"></div>
+      </div>
     </section>
 
-    <!-- اللوحة الرئيسة: لوحة الشعب + عمود المناوبين/المشرفين -->
+    <!-- اللوحة الرئيسة -->
     <section class="card">
       <div class="board">
         <!-- A) لوحة الشعب -->
@@ -316,7 +290,7 @@
           </div>
         </div>
 
-        <!-- B) عمود المناوبين/المشرفين (أضيق + يمتد من حدود أول حتى نهاية ثالث) -->
+        <!-- B) عمود المناوبة/الإشراف -->
         <aside id="dutyPanel" class="duty-card">
           <div class="duty-title">المناوبون والمشرفون لهذا اليوم</div>
           <div style="margin-bottom:6px"><span id="phaseLabel" class="phase-pill">—</span></div>
@@ -328,7 +302,15 @@
           </div>
 
           <div id="dutyList"></div>
-          <small style="color:#0b4035">الأسماء ثابتة أسبوعيًا حسب اليوم، وتتبدّل «الصفة» تلقائيًا حسب التوقيت.</small>
+
+          <ul class="duty-guide" id="dutyGuide">
+            <li>قبل الطابور: بوابات → طابور → تأخر.</li>
+            <li>دخول الحصص: تفريغ الساحة → منع تجمع.</li>
+            <li>بين الحصص: جولات الممرات → منع خروج.</li>
+            <li>الفسحة: تنظيم الحركة → منع مخالفة.</li>
+            <li>الصلاة: اصطفاف هادئ → انضباط.</li>
+            <li>نهاية الدوام: تنظيم المخارج → منع رجوع.</li>
+          </ul>
         </aside>
       </div>
     </section>
@@ -355,44 +337,17 @@ function dayNameArabicFromDate(dt){return ['الأحد','الاثنين','الث
 function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${da}/${m}/${y}`}
 function fmtHijri(d){try{return new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'2-digit',month:'long',year:'numeric'}).format(d)}catch{return fmtDate(d)}}
 
-/* ===== أمان التحرير ===== */
-async function sha256(s){const enc=new TextEncoder().encode(s);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
-let ADMIN_HASH = ls.get('smart_admin_hash','');
-let EDIT_ENABLED = ls.get('smart_edit_unlocked',false);
-function setLockUI(){
-  const locked = !EDIT_ENABLED;
-  $('#lockState').textContent = locked ? '🔒 محرّر مقفول' : '🔓 محرّر مفتوح';
-  ['btnImport','btnTimes','btnWA','btnCloud'].forEach(id=>{ const el=$('#'+id); if(el) el.toggleAttribute('disabled', locked); });
-  $$('.abs-btn, .edit-btn, .abs-clear').forEach(el=>el.toggleAttribute('disabled', locked));
-}
-async function promptSetPin(){
-  if(EDIT_ENABLED) return alert('أغلق التحرير أولاً ثم غيّر الرمز.');
-  const p1 = prompt('أدخل رمز مدير جديد (٦ أرقام):'); if(!p1) return;
-  if(!/^\d{6}$/.test(p1)) return alert('الرمز يجب أن يكون ٦ أرقام.');
-  const p2 = prompt('أعد إدخال الرمز للتأكيد:'); if(p1!==p2) return alert('الرمزان غير متطابقين.');
-  ADMIN_HASH = await sha256(p1); ls.set('smart_admin_hash', ADMIN_HASH); alert('تم ضبط رمز المدير ✔');
-}
-async function promptToggleEdit(){
-  if(!ADMIN_HASH){ return alert('لم يتم ضبط رمز مدير بعد. استخدم: تعيين/تغيير رمز المدير (٦ أرقام).'); }
-  const pin = prompt(EDIT_ENABLED?'أدخل الرمز لإغلاق التحرير:':'أدخل الرمز لفتح التحرير:'); if(!pin) return;
-  if(!/^\d{6}$/.test(pin)) return alert('الرمز يجب أن يكون ٦ أرقام.');
-  const h = await sha256(pin);
-  if(h!==ADMIN_HASH) return alert('رمز غير صحيح.');
-  EDIT_ENABLED = !EDIT_ENABLED; ls.set('smart_edit_unlocked', EDIT_ENABLED); setLockUI();
-}
-
 /* ===== المواقيت ===== */
 const PRESET_SUMMER={assm_s:'06:45',assm_e:'07:00',p1_s:'07:00',p1_e:'07:50',p2_s:'07:50',p2_e:'08:40',p3_s:'08:40',p3_e:'09:30',break_s:'09:30',break_e:'09:55',p4_s:'09:55',p4_e:'10:45',p5_s:'10:45',p5_e:'11:35',p6_s:'11:35',p6_e:'12:25',pr_s:'12:25',pr_e:'12:40',p7_s:'12:40',p7_e:'13:30'};
 const PRESET_WINTER={assm_s:'07:00',assm_e:'07:15',p1_s:'07:15',p1_e:'08:05',p2_s:'08:05',p2_e:'08:55',p3_s:'08:55',p3_e:'09:45',break_s:'09:45',break_e:'10:10',p4_s:'10:10',p4_e:'11:00',p5_s:'11:00',p5_e:'11:50',p6_s:'11:50',p6_e:'12:40',pr_s:'12:40',pr_e:'12:55',p7_s:'12:55',p7_e:'13:45'};
-const DEFAULT_TIMES=PRESET_SUMMER;
-let TIMES=ls.get('smart_times',DEFAULT_TIMES);
-function setTimeInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) el.value=TIMES[id]||DEFAULT_TIMES[id];});}
-function saveTimesFromInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) TIMES[id]=el.value||DEFAULT_TIMES[id];}); ls.set('smart_times',TIMES)}
+let TIMES=ls.get('smart_times',PRESET_SUMMER);
+function setTimeInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) el.value=TIMES[id]||PRESET_SUMMER[id];});}
+function saveTimesFromInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) TIMES[id]=el.value||PRESET_SUMMER[id];}); ls.set('smart_times',TIMES)}
 function parseHM(str){const [h,m]=String(str||'').split(':').map(x=>parseInt(x)); return {h:h||0,m:m||0}}
 function inRangeHM(now,s,e){const x=now.getHours()*60+now.getMinutes(), S=s.h*60+s.m, E=e.h*60+e.m; return x>=S && x<E}
 function hmToMin(s){const [H,M]=String(s||'0:0').split(':').map(Number); return (H||0)*60+(M||0);}
 
-/* ===== فواصل زمنية / الحصة الحالية ===== */
+/* ===== الفواصل / الحصة الحالية ===== */
 function periodNameAr(n){return ['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة'][n-1]||''}
 function timeRangeOfPeriod(n){const map={1:['p1_s','p1_e'],2:['p2_s','p2_e'],3:['p3_s','p3_e'],4:['p4_s','p4_e'],5:['p5_s','p5_e'],6:['p6_s','p6_e'],7:['p7_s','p7_e']}; const k=map[n]; if(!k) return ''; return `${TIMES[k[0]]}–${TIMES[k[1]]}`}
 function currentSlot(dayName,now){
@@ -463,8 +418,8 @@ function renderBands(){
   $('#band_second').innerHTML=CLASSES.second.map(mk).join('');
   $('#band_third').innerHTML=CLASSES.third.map(mk).join('');
 
-  $$('.abs-btn').forEach(b=>b.onclick=()=>EDIT_ENABLED?openAbsForm(b.dataset.class):alert('التحرير مقفول.'));
-  $$('.edit-btn').forEach(b=>b.onclick=()=>EDIT_ENABLED?openEditForm(b.dataset.class):alert('التحرير مقفول.'));
+  $$('.abs-btn').forEach(b=>b.onclick=()=>openAbsForm(b.dataset.class));
+  $$('.edit-btn').forEach(b=>b.onclick=()=>openEditForm(b.dataset.class));
 }
 
 function findEntry(day,period,classId){return TIMETABLE.find(r=>r.day===day && Number(r.period)===Number(period) && r.classId===classId)}
@@ -503,7 +458,7 @@ function updateTiles(dayName,now){
         sEl.insertAdjacentElement('beforebegin', c1); sEl.insertAdjacentElement('beforebegin', c2);
         tEl.textContent = `غائب: ${ab.absent||'—'} — بديل: ${ab.cover||'—'}`;
         const clr=document.createElement('button'); clr.className='abs-clear'; clr.textContent='إلغاء الغياب';
-        clr.onclick=()=>EDIT_ENABLED?clearAbsence(dayName, slot.period, cls.classId):alert('التحرير مقفول.');
+        clr.onclick=()=>clearAbsence(dayName, slot.period, cls.classId);
         tile.appendChild(clr);
       }
     } else {
@@ -517,7 +472,6 @@ function updateTiles(dayName,now){
 function openAbsForm(classId){
   const now=new Date(); const day=dayNameArabicFromDate(now); const slot=currentSlot(day,now);
   if(slot.kind!=='period'){ return alert('ليست ضمن وقت حصة.'); }
-  if(!EDIT_ENABLED){ return alert('التحرير مقفول. افتح القفل من أيقونة القفل.'); }
   const period=slot.period; const tile=$(`#tile_${classId}`); if(!tile) return;
   tile.querySelectorAll('.abs-form').forEach(n=>n.remove());
   const ent=findEntry(day, period, classId) || {};
@@ -549,7 +503,6 @@ function openAbsForm(classId){
 function openEditForm(classId){
   const now=new Date(); const day=dayNameArabicFromDate(now); const slot=currentSlot(day,now);
   if(slot.kind!=='period'){ return alert('ليست ضمن وقت حصة.'); }
-  if(!EDIT_ENABLED){ return alert('التحرير مقفول. افتح القفل من أيقونة القفل.'); }
   const period=slot.period; const tile=$(`#tile_${classId}`); if(!tile) return;
   tile.querySelectorAll('.edit-form').forEach(n=>n.remove());
   const ent=findEntry(day, period, classId) || {day,period,classId,subject:'',teacher:'',room:''};
@@ -579,8 +532,8 @@ function openEditForm(classId){
   };
 }
 
-/* ===== عمود المناوبة/الإشراف ===== */
-let DUTY_FIXED = ls.get('smart_duty_fixed', {}); // { 'الأحد': {names: ['','','',...]} }
+/* ===== المناوبة/الإشراف ===== */
+let DUTY_FIXED = ls.get('smart_duty_fixed', {});
 function ensureDutyFixed(day){
   DUTY_FIXED[day] ||= {names: Array(7).fill('')};
   const arr = DUTY_FIXED[day].names;
@@ -609,7 +562,7 @@ function renderDutyPanel(day){
   const rows = state.names.map((name,idx)=>`
     <div class="duty-row" data-idx="${idx}">
       <div class="duty-name">
-        <input ${EDIT_ENABLED?'':'disabled'} list="teachersList" placeholder="اسم المعلّم" value="${name||''}">
+        <input list="teachersList" placeholder="اسم المعلّم" value="${name||''}">
       </div>
       <div class="duty-actions">
         <button class="mini" data-wa="${idx}">واتساب</button>
@@ -630,30 +583,26 @@ function renderDutyPanel(day){
     };
   });
   $$('#dutyList [data-up]').forEach(btn=>btn.onclick=()=>{
-    if(!EDIT_ENABLED) return alert('التحرير مقفول.');
     const i=parseInt(btn.dataset.up); if(i<=0) return;
     [state.names[i-1],state.names[i]]=[state.names[i],state.names[i-1]];
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
   });
   $$('#dutyList [data-dn]').forEach(btn=>btn.onclick=()=>{
-    if(!EDIT_ENABLED) return alert('التحرير مقفول.');
     const i=parseInt(btn.dataset.dn); if(i>=state.names.length-1) return;
     [state.names[i],state.names[i+1]]=[state.names[i+1],state.names[i]];
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
   });
   $$('#dutyList [data-clr]').forEach(btn=>btn.onclick=()=>{
-    if(!EDIT_ENABLED) return alert('التحرير مقفول.');
     state.names[parseInt(btn.dataset.clr)]='';
     ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
   });
 
-  // واتساب: معالجة عدم وجود رقم — نطلبه ونحفظه
+  // واتساب
   $$('#dutyList [data-wa]').forEach(btn=>btn.onclick=()=>{
     const i=parseInt(btn.dataset.wa); const name=state.names[i];
     if(!name) return alert('أدخل اسم المعلّم أولاً.');
     let rec = PHONEBOOK[name] || {};
     let phone = String(rec.phone||'').replace(/[^0-9]/g,'');
-
     if(!phone){
       const inp = prompt('لا يوجد رقم لهذا المعلّم.\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):');
       if(!inp) return;
@@ -663,7 +612,6 @@ function renderDutyPanel(day){
       PHONEBOOK[name] = {...rec, phone};
       ls.set('smart_phonebook', PHONEBOOK);
     }
-
     const now=new Date(); const dayName=dayNameArabicFromDate(now);
     const ph=currentDutyPhase(now);
     const msg=`السلام عليكم
@@ -674,26 +622,9 @@ function renderDutyPanel(day){
     const url=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
     window.open(url,'_blank');
   });
-
-  $('#dutySave').onclick = ()=>{ ls.set('smart_duty_fixed', DUTY_FIXED); alert('تم حفظ قائمة المناوبين/المشرفين لليوم ✔'); };
-  $('#dutyClear').onclick = ()=>{
-    if(!EDIT_ENABLED) return alert('التحرير مقفول.');
-    DUTY_FIXED[day]={names:Array(7).fill('')}; ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
-  };
-  $('#dutySuggest').onclick = ()=>{
-    if(!EDIT_ENABLED) return alert('التحرير مقفول.');
-    const unique = Array.from(new Set(TEACHERS||[]));
-    unique.sort((a,b)=> (TIMETABLE.filter(r=>r.day===day && r.teacher===a).length - TIMETABLE.filter(r=>r.day===day && r.teacher===b).length) || a.localeCompare(b,'ar'));
-    DUTY_FIXED[day]={names: unique.slice(0,7)};
-    ls.set('smart_duty_fixed', DUTY_FIXED);
-    renderDutyPanel(day);
-  };
-
-  // محاذاة رأسياً: من أعلى "أول" إلى نهاية "ثالث"
-  alignDutyPanelToBands();
 }
 
-/* ===== مؤشر البطارية (حُدِّث موضعه) ===== */
+/* ===== المؤشر المتوسط ===== */
 let _lastRem=null;
 function updateMidIndicator(dayName, now){
   const elPhase=$('#mid-phase'), elRange=$('#mid-range'), elFill=$('#batFill'), elNum=$('#mid-num');
@@ -722,18 +653,18 @@ function updateMidIndicator(dayName, now){
   }
 }
 
-/* ===== محاذاة عمود المناوبة مع لوحات الشعب رأسياً ===== */
+/* ===== محاذاة عمود المناوبة ===== */
 function alignDutyPanelToBands(){
   const board=$('.board'), first=$('#wrap_first'), third=$('#wrap_third'), panel=$('#dutyPanel');
   if(!(board && first && third && panel)) return;
   const br = board.getBoundingClientRect();
-  const r1 = first.getBoundingClientRect();
+  const rStartTile = $('#tile_أول-5')?.getBoundingClientRect() || first.getBoundingClientRect();
   const r3 = third.getBoundingClientRect();
-  const topOffset = r1.top - br.top;
-  const minH = (r3.top + r3.height) - r1.top;
+  const topOffset = rStartTile.top - br.top;
+  const minH = (r3.top + r3.height) - rStartTile.top;
   panel.style.alignSelf='start';
-  panel.style.marginTop = `${Math.max(0, topOffset)}px`;
-  panel.style.minHeight = `${Math.max(320, Math.round(minH))}px`;
+  panel.style.marginTop = `${Math.max(0, Math.round(topOffset))}px`;
+  panel.style.minHeight = `${Math.max(360, Math.round(minH))}px`;
 }
 
 /* ===== Excel: استيراد الجدول ===== */
@@ -782,7 +713,7 @@ function normalizeClassId(v){
 function looksTeacher(s){
   s=String(s||'').trim();
   if(!s) return false;
-  if(/^أ(\.|\/|\s)|^(أستاذ|معلم)/.test(s)) return true;
+  if(/^(?:أ\.|أ\/|أستاذ|معلم)/.test(s)) return true;
   if(/\s/.test(s) && !/[0-9]/.test(s) && s.length>=5) return true;
   return false;
 }
@@ -804,16 +735,13 @@ function buildTimetableFromSheet(ws){
   const {R,C}=sheetSize(ws);
   if(R<3 || C<3) throw new Error('ورقة صغيرة جدًا');
 
-  // تعرّف الأيام لكل عمود
   const dayByCol = Array(C).fill(''); let lastDay='';
   for(let c=1;c<C;c++){
     const d0 = canonDay(cell(ws,0,c)), d1 = canonDay(cell(ws,1,c));
-    if(d0) lastDay = d0;
-    else if(d1) lastDay = d1;
+    if(d0) lastDay = d0; else if(d1) lastDay = d1;
     dayByCol[c]=lastDay;
   }
 
-  // تعرّف الحصص والمدى الزمني
   const perByCol = Array(C).fill(null); const timeByCol = Array(C).fill(null); let lastPer=1;
   for(let c=1;c<C;c++){
     const v1 = cell(ws,1,c), p=looksPeriod(v1), tr=looksTimeRange(v1);
@@ -823,199 +751,188 @@ function buildTimetableFromSheet(ws){
     if(tr) timeByCol[c]=tr;
   }
 
-  // تحديث المواقيت إذا وُجدت
   const trMap = {};
   for(let c=1;c<C;c++){ const p=perByCol[c], tr=timeByCol[c]; if(tr && p>=1 && p<=7) trMap[p]=tr; }
   if(Object.keys(trMap).length>=4){
     for(const k in trMap){ const n=parseInt(k,10); TIMES[`p${n}_s`]=trMap[k].start; TIMES[`p${n}_e`]=trMap[k].end; }
-    ls.set('smart_times', TIMES);
-    setTimeInputs();
+    ls.set('smart_times', TIMES); setTimeInputs();
   }
 
-  // بناء الجدول
   const tt=[]; const foundTeachers = new Set(TEACHERS||[]); const foundSubjects = new Set(SUBJECTS||[]);
   for(let r=2;r<R;r++){
     const clsRaw = cell(ws,r,0); const classId = normalizeClassId(clsRaw);
     if(!classId || !/^(أول|ثاني|ثالث)\-\d+$/.test(classId)) continue;
     for(let c=1;c<C;c++){
-      const day = dayByCol[c]; const period = perByCol[c]; if(!day || !period) continue;
-      const val = cell(ws,r,c); if(!String(val||'').trim()) continue;
-      const {subject, teacher} = splitCellToSubjectTeacher(val);
-      if(subject || teacher){
-        tt.push({day,period:parseInt(period,10),classId,subject,teacher,room:''});
-        if(subject) foundSubjects.add(subject);
-        if(teacher) foundTeachers.add(teacher);
-      }
+      const day = dayByCol[c]; const per = perByCol[c]; if(!day || !per) continue;
+      const v = cell(ws,r,c);
+      if(String(v||'').trim()==='') continue;
+      const {subject,teacher} = splitCellToSubjectTeacher(v);
+      tt.push({day, period:per, classId, subject, teacher, room:''});
+      if(subject) foundSubjects.add(subject);
+      if(teacher) foundTeachers.add(teacher);
     }
   }
-  if(tt.length===0) throw new Error('تعذّر التعرّف على الجدول.');
-  TIMETABLE = tt;
-  TEACHERS=Array.from(foundTeachers); SUBJECTS=Array.from(foundSubjects);
-  ls.set('smart_timetable', TIMETABLE); ls.set('smart_teachers_list', TEACHERS); ls.set('smart_subjects_list', SUBJECTS);
-  refreshDatalists();
+  TEACHERS=[...foundTeachers]; SUBJECTS=[...foundSubjects];
+  ls.set('smart_teachers_list', TEACHERS); ls.set('smart_subjects_list', SUBJECTS);
+  return tt;
 }
 
-/* ===== دفتر الهواتف ===== */
-function importPhonebookFromSheet(ws){
-  const {R,C}=sheetSize(ws);
-  const headers=[]; for(let c=0;c<C;c++) headers.push(String(cell(ws,0,c)||'').trim().toLowerCase());
-  const idxOf = (names)=> headers.findIndex(h=>names.some(n=>h.includes(n)));
-  const iName = idxOf(['الاسم','name']);
-  const iPhone= idxOf(['جوال','هاتف','phone','mobile']);
-  const iId   = idxOf(['هوية','سجل','id']);
-  const iSpec = idxOf(['تخصص','spec','subject']);
-  const book={...PHONEBOOK};
-  for(let r=1;r<R;r++){
-    const name = iName>=0? String(cell(ws,r,iName)||'').trim() : '';
-    if(!name) continue;
-    const rawPhone = iPhone>=0? String(cell(ws,r,iPhone)||'') : '';
-    const phone = rawPhone.replace(/[^\d]/g,'');
-    const natId = iId>=0? String(cell(ws,r,iId)||'').trim() : '';
-    const spec  = iSpec>=0? String(cell(ws,r,iSpec)||'').trim() : '';
-    book[name]={phone, natId, spec};
+/* ===== استيراد هاتف/واتساب ===== */
+function parsePhonebookSheet(ws){
+  const {R}=sheetSize(ws); const map={};
+  for(let r=0;r<R;r++){
+    let name = String(cell(ws,r,0)||'').trim();
+    let phone = String(cell(ws,r,1)||'').replace(/[^0-9]/g,'');
+    if(!name || !phone) continue;
+    map[name]={phone};
   }
-  PHONEBOOK = book; ls.set('smart_phonebook', PHONEBOOK);
-  Object.keys(book).forEach(n=>{ if(n && !TEACHERS.includes(n)) TEACHERS.push(n); });
-  ls.set('smart_teachers_list', TEACHERS);
-  refreshDatalists();
+  return map;
 }
 
-/* ===== تحديث عام ===== */
-let _lastPhaseKey='init';
-function updateAll(){
+/* ===== حفظ/تحميل لقطة ===== */
+function makeSnapshot(){
+  return {times:TIMES, timetable:TIMETABLE, teachers:TEACHERS, subjects:SUBJECTS, phonebook:PHONEBOOK, absences:ABSENCES, duty:DUTY_FIXED};
+}
+function applySnapshot(o){
+  if(!o) return;
+  TIMES=o.times||TIMES, TIMETABLE=o.timetable||TIMETABLE, TEACHERS=o.teachers||TEACHERS;
+  SUBJECTS=o.subjects||SUBJECTS, PHONEBOOK=o.phonebook||PHONEBOOK, ABSENCES=o.absences||ABSENCES, DUTY_FIXED=o.duty||DUTY_FIXED;
+  ls.set('smart_times',TIMES); ls.set('smart_timetable',TIMETABLE); ls.set('smart_teachers_list',TEACHERS);
+  ls.set('smart_subjects_list',SUBJECTS); ls.set('smart_phonebook',PHONEBOOK); ls.set('smart_absences',ABSENCES); ls.set('smart_duty_fixed',DUTY_FIXED);
+  refreshDatalists(); updateAll();
+}
+
+/* ===== القوائم تحت الأزرار (داخل الرفّ) ===== */
+const MENU_MAP = {btnImport:'menuImport', btnTimes:'menuTimes', btnWA:'menuWA', btnCloud:'menuCloud'};
+let OPEN_MENU_ID = null;
+
+function closeAllMenus(){
+  const shelf = $('#menusShelf');
+  $$('.menu.open').forEach(m=>{
+    m.classList.remove('open');
+    m.style.removeProperty('--menu-offset');
+    const home = m.dataset.homeId && $('#'+m.dataset.homeId);
+    if(home) home.appendChild(m);
+  });
+  OPEN_MENU_ID = null;
+  $('#hero').classList.remove('menu-open');
+}
+function toggleMenu(btnId){
+  const menuId = MENU_MAP[btnId]; if(!menuId) return;
+  const btn = $('#'+btnId); const menu = $('#'+menuId); const shelf=$('#menusShelf'); const hero=document.getElementById('hero');
+  const isOpen = OPEN_MENU_ID===menuId;
+  closeAllMenus();
+  if(isOpen) return;
+
+  // حضّر الموضع: ضع القائمة مؤقتًا بالرف للقياس
+  if(!menu.dataset.homeId){ menu.dataset.homeId = menu.parentElement.id; }
+  hero.classList.add('menu-open');
+  shelf.appendChild(menu);
+  menu.style.visibility='hidden';
+  menu.classList.add('open');
+
+  // محاذاة أسفل الزر
+  const heroRect = hero.getBoundingClientRect();
+  const btnRect  = btn.getBoundingClientRect();
+  const menuW    = menu.offsetWidth;
+  let left = (btnRect.left + btnRect.width/2) - (menuW/2) - heroRect.left;
+  left = Math.max(8, Math.min(heroRect.width - menuW - 8, left));
+  menu.style.setProperty('--menu-offset', left+'px');
+  menu.style.visibility='visible';
+
+  OPEN_MENU_ID = menuId;
+}
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('.menu') || e.target.closest('.ib')) return;
+  closeAllMenus();
+});
+window.addEventListener('resize', ()=>{ if(OPEN_MENU_ID){ const id = Object.keys(MENU_MAP).find(k=>MENU_MAP[k]===OPEN_MENU_ID); if(id) toggleMenu(id); }}, {passive:true});
+
+/* ===== ساعة + تحديثات ===== */
+function updateClock(){
   const now=new Date();
+  const hh=String(now.getHours()).padStart(2,'0');
+  const mm=String(now.getMinutes()).padStart(2,'0');
+  const ss=String(now.getSeconds()).padStart(2,'0');
+  $('#clock').textContent = `${hh}:${mm}:${ss}`;
   const day=dayNameArabicFromDate(now);
+  $('#dateWeek').textContent = `${day} • ${fmtHijri(now)} • ${fmtDate(now)}`;
   updateTiles(day, now);
   updateMidIndicator(day, now);
-  const ph=currentDutyPhase(now).key;
-  if(ph!==_lastPhaseKey){ _lastPhaseKey=ph; renderDutyPanel(day); }
+  renderDutyPanel(day);
+}
+function updateAll(){
+  const now=new Date(); const day=dayNameArabicFromDate(now);
+  renderBands();
+  refreshDatalists();
+  updateTiles(day, now);
+  updateMidIndicator(day, now);
+  renderDutyPanel(day);
   alignDutyPanelToBands();
 }
 
-/* ===== الساعة + التاريخ ===== */
-function pad2(n){return String(n).padStart(2,'0')}
-function updateClock(){
-  const now=new Date();
-  $('#clock').textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
-  const day=dayNameArabicFromDate(now);
-  $('#dateWeek').textContent = `${day} — ${fmtHijri(now)}`;
-  updateMidIndicator(day, now);
-}
-
-/* ===== قوائم الأيقونات ===== */
-function wireMenus(){
-  const pairs=[['btnLock','menuLock'],['btnImport','menuImport'],['btnTimes','menuTimes'],['btnWA','menuWA'],['btnCloud','menuCloud']];
-  pairs.forEach(([b,m])=>{
-    const btn=$('#'+b), menu=$('#'+m);
-    if(!btn||!menu) return;
-    btn.onclick=(e)=>{ e.stopPropagation(); if(btn.hasAttribute('disabled')) return; closeAll(menu); menu.classList.toggle('open'); };
+/* ===== ربط الأحداث ===== */
+function bindUI(){
+  Object.keys(MENU_MAP).forEach(btnId=>{
+    const btn = $('#'+btnId); if(btn) btn.addEventListener('click', e=>{ e.stopPropagation(); toggleMenu(btnId); });
   });
-  document.addEventListener('click', ()=>closeAll());
-  function closeAll(except){
-    ['menuLock','menuImport','menuTimes','menuWA','menuCloud'].forEach(id=>{
-      if(except && except.id===id) return;
-      const el=$('#'+id); if(el) el.classList.remove('open');
-    });
-  }
-}
 
-/* ===== ربط الواجهة ===== */
-function wireUI(){
-  // قفل/فتح
-  $('#setPin').onclick = ()=>promptSetPin();
-  $('#toggleEdit').onclick = ()=>promptToggleEdit();
+  // استيراد الجدول
+  $('#pickTable').onclick = ()=>$('#fileTable').click();
+  $('#fileTable').onchange = e=>{
+    const f=e.target.files[0]; if(!f) return;
+    readWorkbookSmart(f, wb=>{
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      try{
+        TIMETABLE = buildTimetableFromSheet(ws);
+        ls.set('smart_timetable', TIMETABLE);
+        refreshDatalists(); updateAll(); alert('تم استيراد الجدول ✔');
+      }catch(err){ console.error(err); alert('تعذّر تحليل الجدول.'); }
+    });
+    e.target.value='';
+  };
 
   // مواقيت
   setTimeInputs();
   $('#applySeason').onclick = ()=>{
-    const mode = $('#seasonMode').value;
-    if(mode==='summer') TIMES={...PRESET_SUMMER};
-    else if(mode==='winter') TIMES={...PRESET_WINTER};
-    ls.set('smart_times', TIMES); setTimeInputs(); alert('تم تطبيق المواقيت المسبقة ✔');
-    updateAll();
+    const m=$('#seasonMode').value;
+    TIMES = (m==='summer')? {...PRESET_SUMMER} : (m==='winter')? {...PRESET_WINTER} : TIMES;
+    setTimeInputs(); ls.set('smart_times',TIMES); updateAll();
   };
-  $('#saveTimes').onclick = ()=>{ saveTimesFromInputs(); alert('تم حفظ المواقيت ✔'); updateAll(); };
+  $('#saveTimes').onclick = ()=>{ saveTimesFromInputs(); updateAll(); alert('تم حفظ المواقيت ✔'); };
 
-  // استيراد الجدول
-  $('#pickTable').onclick = ()=>$('#fileTable').click();
-  $('#fileTable').addEventListener('change', (ev)=>{
-    const f=ev.target.files && ev.target.files[0]; if(!f) return;
-    readWorkbookSmart(f, (wb)=>{
-      try{
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        buildTimetableFromSheet(ws);
-        updateAll();
-        alert('✅ تم استيراد الجدول وبناؤه: '+TIMETABLE.length+' سجل.');
-      }catch(err){
-        console.error(err);
-        alert('تعذّر التعرّف على الجدول. يرجى التأكد من وجود صف للأيام وصف للحصص والعمود الأول للشُعب.');
-      }
-    });
-    ev.target.value='';
-  });
-
-  // واتساب: دفتر الهواتف
+  // دفتر الهواتف
   $('#pickPhonebook').onclick = ()=>$('#filePhonebook').click();
-  $('#filePhonebook').addEventListener('change', (ev)=>{
-    const f=ev.target.files && ev.target.files[0]; if(!f) return;
-    readWorkbookSmart(f, (wb)=>{
-      try{
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        importPhonebookFromSheet(ws);
-        alert('✅ تم استيراد دفتر الهواتف.');
-      }catch(err){
-        console.error(err);
-        alert('تعذّر استيراد دفتر الهواتف.');
-      }
+  $('#filePhonebook').onchange = e=>{
+    const f=e.target.files[0]; if(!f) return;
+    readWorkbookSmart(f, wb=>{
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      PHONEBOOK = {...PHONEBOOK, ...parsePhonebookSheet(ws)};
+      ls.set('smart_phonebook', PHONEBOOK);
+      alert('تم تحديث دفتر الهواتف ✔');
     });
-    ev.target.value='';
-  });
+    e.target.value='';
+  };
 
-  // سحابة JSON (حفظ/استعادة)
+  // سحابة
   $('#saveSnapshot').onclick = ()=>{
-    const payload = { TIMES, TIMETABLE, TEACHERS, SUBJECTS, PHONEBOOK, ABSENCES, DUTY_FIXED, EDIT_ENABLED, ADMIN_HASH };
-    const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-    a.download='smart_board_snapshot.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 500);
+    const blob = new Blob([JSON.stringify(makeSnapshot(),null,2)], {type:'application/json;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='yaqoobi_snapshot.json'; a.click(); URL.revokeObjectURL(a.href);
   };
   $('#loadSnapshot').onclick = ()=>$('#snapshotIn').click();
-  $('#snapshotIn').addEventListener('change', (ev)=>{
-    const f=ev.target.files && ev.target.files[0]; if(!f) return;
-    const reader=new FileReader();
-    reader.onload=e=>{
-      try{
-        const data=JSON.parse(e.target.result);
-        if(data.TIMES){ TIMES=data.TIMES; ls.set('smart_times',TIMES); setTimeInputs(); }
-        if(data.TIMETABLE){ TIMETABLE=data.TIMETABLE; ls.set('smart_timetable',TIMETABLE); }
-        if(data.TEACHERS){ TEACHERS=data.TEACHERS; ls.set('smart_teachers_list',TEACHERS); }
-        if(data.SUBJECTS){ SUBJECTS=data.SUBJECTS; ls.set('smart_subjects_list',SUBJECTS); }
-        if(data.PHONEBOOK){ PHONEBOOK=data.PHONEBOOK; ls.set('smart_phonebook',PHONEBOOK); }
-        if(data.ABSENCES){ ABSENCES=data.ABSENCES; ls.set('smart_absences',ABSENCES); }
-        if(data.DUTY_FIXED){ DUTY_FIXED=data.DUTY_FIXED; ls.set('smart_duty_fixed',DUTY_FIXED); }
-        if(typeof data.EDIT_ENABLED==='boolean'){ EDIT_ENABLED=data.EDIT_ENABLED; ls.set('smart_edit_unlocked',EDIT_ENABLED); }
-        if(data.ADMIN_HASH){ ADMIN_HASH=data.ADMIN_HASH; ls.set('smart_admin_hash',ADMIN_HASH); }
-        refreshDatalists(); setLockUI(); updateAll();
-        alert('✅ تم استعادة البيانات.');
-      }catch(err){ console.error(err); alert('تعذّر قراءة الملف.'); }
-    };
-    reader.readAsText(f,'utf-8');
-    ev.target.value='';
-  });
+  $('#snapshotIn').onchange = e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader(); r.onload=ev=>{ try{ const o=JSON.parse(ev.target.result); applySnapshot(o); alert('تم الاستعادة ✔'); }catch{ alert('ملف غير صالح'); } };
+    r.readAsText(f,'utf-8'); e.target.value='';
+  };
 }
 
-/* ===== تشغيل أولي ===== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  renderBands();
-  refreshDatalists();
-  setLockUI();
-  wireMenus();
-  wireUI();
-  updateAll();
-  updateClock();
-  window.addEventListener('resize', alignDutyPanelToBands);
-  setInterval(updateClock, 1000);
-  setInterval(updateAll, 15000);
-});
+/* ===== تشغيل ===== */
+bindUI();
+renderBands();
+refreshDatalists();
+updateAll();
+setInterval(updateClock, 1000);
 </script>
 </body>
 </html>
