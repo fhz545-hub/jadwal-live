@@ -220,7 +220,7 @@ body{
 main{
   width:min(1780px, 100%);
   margin:0 auto;
-  padding:14px 14px 118px;
+  padding:14px 14px 110px; /* حتى لا يلتف المحتوى تحت الفوتر */
 }
 
 /* stage cards */
@@ -236,15 +236,27 @@ main{
   background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
   border-color: rgba(255,255,255,.12);
 }
+
+/* رأس المرحلة: افتراضي */
 .stageHead{
   padding:12px 12px;
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   border-bottom:1px solid var(--line);
 }
 :root[data-theme="dark"] .stageHead{border-bottom:1px solid rgba(255,255,255,.08)}
-.stageHead .left{display:flex; align-items:center; gap:10px}
+
+/* رأس المرحلة الأولى: شبكة ثابتة (بدون التفاف) + مؤشر متبقّي ثابت داخل الفراغ */
+.stageHead.docked{
+  display:grid;
+  grid-template-columns: 1fr auto auto; /* عنوان | مؤشر | ميتا */
+  align-items:center;
+  gap:12px;
+}
+.stageHead.docked > *{min-width:0}
+
+.stageHead .left{display:flex; align-items:center; gap:10px; min-width:0}
 .dot{width:12px;height:12px;border-radius:999px; box-shadow:0 0 0 6px rgba(255,255,255,.06);}
-.stageHead h2{margin:0;font-size:15px;font-weight:1000;}
+.stageHead h2{margin:0;font-size:15px;font-weight:1000; white-space:nowrap;}
 .meta{
   display:inline-flex; gap:8px; align-items:center;
   padding:7px 10px;
@@ -254,6 +266,46 @@ main{
   font-weight:900; color:var(--muted); font-size:12px; white-space:nowrap;
 }
 :root[data-theme="dark"] .meta{background: rgba(0,0,0,.16);border-color: rgba(255,255,255,.12);}
+
+/* مؤشر متبقّي ثابت (داخل رأس أول ثانوي) */
+.remainDock{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background: linear-gradient(180deg, var(--glass2), var(--glass));
+  box-shadow: var(--shadow2);
+  white-space:nowrap;
+}
+:root[data-theme="dark"] .remainDock{
+  border-color: rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+}
+.remainDock .ttl{
+  font-weight:1000;
+  color:var(--muted);
+  font-size:12px;
+}
+.remainDock .big{
+  font-family:"Cairo";
+  font-weight:900;
+  color:var(--text);
+  font-size:12px;
+}
+.remainDock .rBar{
+  width:160px;
+  height:10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(0,0,0,.05);
+  overflow:hidden;
+}
+:root[data-theme="dark"] .remainDock .rBar{background: rgba(255,255,255,.06)}
+.remainDock .rBar i{
+  display:block; height:100%; width:0%;
+  background: linear-gradient(90deg, var(--moe2), var(--moe));
+  border-radius:999px;
+}
 
 /* grid */
 .grid{display:grid; gap:var(--gap); padding:12px; grid-template-columns: repeat(auto-fit, minmax(var(--tileMin), 1fr));}
@@ -441,64 +493,18 @@ body.projector .subject{font-size:22px}
   font-size:12px;
 }
 
-/* Floating progress */
-.floatProg{
-  position:fixed; left:18px; bottom:86px;
-  z-index:120;
-  width: min(420px, calc(100vw - 36px));
-  border-radius: 22px;
-  border:1px solid var(--line);
-  background: linear-gradient(180deg, var(--glass2), var(--glass));
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  user-select:none;
-  touch-action:none;
-}
-:root[data-theme="dark"] .floatProg{
-  border-color: rgba(255,255,255,.14);
-  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
-}
-.floatProg .head{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:10px 12px;
-  border-bottom:1px solid var(--line);
-}
-:root[data-theme="dark"] .floatProg .head{border-bottom:1px solid rgba(255,255,255,.10)}
-.floatProg .head b{font-size:13px; font-weight:1000}
-.fpBtn{
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.75);
-  border-radius:999px;
-  padding:6px 10px;
-  font-size:11px;
-  font-weight:1000;
-  cursor:pointer;
-}
-:root[data-theme="dark"] .fpBtn{border-color: rgba(255,255,255,.14);background: rgba(255,255,255,.08)}
-.fpBtn:hover{background: var(--glass2)}
-.floatProg .body{padding:10px 12px 12px; display:grid; gap:10px}
-.fpRow{display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-weight:900; font-size:12px}
-.fpBig{font-family:"Cairo"; font-weight:900; color:var(--text)}
-.fpBar{
-  height:12px; border-radius:999px;
-  border:1px solid var(--line);
-  background: rgba(0,0,0,.05);
-  overflow:hidden;
-}
-:root[data-theme="dark"] .fpBar{background: rgba(255,255,255,.06)}
-.fpBar i{
-  display:block; height:100%; width:0%;
-  background: linear-gradient(90deg, var(--moe2), var(--moe));
-  border-radius:999px;
-}
-.floatProg.locked{cursor:default}
-.floatProg .hint{color:var(--muted2); font-size:11px; font-weight:900}
-body.projector .floatProg{display:none}
-
+/* تحسين عدم التفاف رأس أول ثانوي على الشاشات الأصغر */
 @media (max-width:980px){
   .clock{min-width:auto}
   .time{font-size:22px}
   .bar{width:140px}
+
+  .stageHead.docked{
+    grid-template-columns: 1fr; /* على الجوال: سطرين بدون قص */
+    row-gap:10px;
+  }
+  .remainDock{justify-content:space-between}
+  .remainDock .rBar{width:140px}
 }
 </style>
 </head>
@@ -592,13 +598,23 @@ body.projector .floatProg{display:none}
 
 <main id="captureRoot">
   <section class="stageCard bandFirst">
-    <div class="stageHead">
+    <!-- docked: مؤشر المتبقي ثابت داخل الفراغ (لا يضيف حيز/لا يسبب التفاف) -->
+    <div class="stageHead docked">
       <div class="left">
         <span class="dot" style="background:var(--first)"></span>
         <h2>أول ثانوي</h2>
       </div>
+
+      <!-- ✅ مؤشر ثابت داخل الرأس -->
+      <div class="remainDock" id="remainDock" aria-label="مؤشر المتبقي">
+        <span class="ttl" id="dockTitle">مؤشر الحصة</span>
+        <div class="rBar"><i id="dockFill"></i></div>
+        <span class="big" id="dockTxt">—</span>
+      </div>
+
       <div class="meta" id="m1">٧ شعب</div>
     </div>
+
     <div class="grid" id="g1"></div>
   </section>
 
@@ -640,24 +656,6 @@ body.projector .floatProg{display:none}
 <footer class="footer">
   <div class="wrap">مبادرة اليعقوبي الثانوية — تنفيذ فهد حامد الزهراني</div>
 </footer>
-
-<!-- FLOATING PROGRESS -->
-<div class="floatProg" id="floatProg">
-  <div class="head" id="fpHandle">
-    <b id="fpTitle">مؤشر الحصة</b>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="fpBtn" id="fpLock">قفل</button>
-      <button class="fpBtn" id="fpHide">إخفاء</button>
-    </div>
-  </div>
-  <div class="body">
-    <div class="fpRow"><div>الحصة/الوقت</div><div class="fpBig" id="fpSlot">—</div></div>
-    <div class="fpBar"><i id="fpFill"></i></div>
-    <div class="fpRow"><div>مضى</div><div class="fpBig" id="fpElapsed">—</div></div>
-    <div class="fpRow"><div>المتبقي</div><div class="fpBig" id="fpRemain">—</div></div>
-    <div class="hint" id="fpHint">اسحب المؤشر لمكان مناسب ثم اضغط "قفل" للتثبيت.</div>
-  </div>
-</div>
 
 <!-- Modal -->
 <div class="modalBack" id="modalBack" role="dialog" aria-modal="true">
@@ -853,53 +851,29 @@ function applyFilter(){
   });
 }
 
-/* ========= Progress UI ========= */
-function setFPHidden(hidden){
-  ls.set('v3_fp_hidden', !!hidden);
-  $('#fpHide').textContent = hidden ? 'إظهار' : 'إخفاء';
-  $('#floatProg').style.display = hidden ? 'none' : '';
-}
-function setFPLocked(locked){
-  ls.set('v3_fp_locked', !!locked);
-  $('#floatProg').classList.toggle('locked', !!locked);
-  $('#fpLock').textContent = locked ? 'فك' : 'قفل';
-  $('#fpHint').textContent = locked ? 'المؤشر مثبت. اضغط "فك" لتحريكه.' : 'اسحب المؤشر لمكان مناسب ثم اضغط "قفل" للتثبيت.';
-}
-function applyFPPosition(){
-  const pos=ls.get('v3_fp_pos', {left:18,bottom:86});
-  const fp=$('#floatProg');
-  fp.style.left=(pos.left|0)+'px';
-  fp.style.bottom=(pos.bottom|0)+'px';
-}
+/* ========= Progress UI (Top + Dock) ========= */
 function updateProgress(period, day, now){
   const prog = periodProgress(period, now);
 
+  // TOP
   if(!prog){
     $('#topProgFill').style.width='0%';
     $('#topProgTxt').textContent='لا يوجد مؤشر الآن';
   }else{
     $('#topProgFill').style.width = prog.pct.toFixed(1)+'%';
-    $('#topProgTxt').textContent = `مضى ${fmtMMSS(prog.elapsed)} • تبقى ${fmtMMSS(prog.remain)} • ${toArabicDigits(prog.pct.toFixed(0))}%`;
+    $('#topProgTxt').textContent =
+      `مضى ${fmtMMSS(prog.elapsed)} • تبقى ${fmtMMSS(prog.remain)} • ${toArabicDigits(prog.pct.toFixed(0))}%`;
   }
 
-  if(ls.get('v3_fp_hidden', false)){
-    $('#floatProg').style.display='none';
-  }else{
-    $('#floatProg').style.display='';
-  }
-
+  // DOCK (داخل رأس أول ثانوي)
   if(!prog){
-    $('#fpTitle').textContent='مؤشر الحصة';
-    $('#fpSlot').textContent='—';
-    $('#fpFill').style.width='0%';
-    $('#fpElapsed').textContent='—';
-    $('#fpRemain').textContent='—';
+    $('#dockTitle').textContent='مؤشر الحصة';
+    $('#dockFill').style.width='0%';
+    $('#dockTxt').textContent='—';
   }else{
-    $('#fpTitle').textContent = `${day} • ${slotLabel(period)}`;
-    $('#fpSlot').textContent = `${prog.s} — ${prog.e}`;
-    $('#fpFill').style.width = prog.pct.toFixed(1)+'%';
-    $('#fpElapsed').textContent = fmtMMSS(prog.elapsed);
-    $('#fpRemain').textContent = fmtMMSS(prog.remain);
+    $('#dockTitle').textContent = `${day} • ${slotLabel(period)}`;
+    $('#dockFill').style.width = prog.pct.toFixed(1)+'%';
+    $('#dockTxt').textContent = `المتبقي ${fmtMMSS(prog.remain)}`;
   }
 }
 
@@ -1411,7 +1385,7 @@ $('#btnResetSafe').onclick=()=>{
   ok.onclick=()=>{
     [
       'v3_theme','v3_times','v3_table','v3_teachers','v3_subjects','v3_phonebook','v3_abs','v3_duty',
-      'v3_compact','v3_projector','v3_tileMin','v3_fp_pos','v3_fp_locked','v3_fp_hidden'
+      'v3_compact','v3_projector','v3_tileMin'
     ].forEach(k=>ls.del(k));
     location.reload();
   };
@@ -1446,56 +1420,6 @@ $('#dutyClear').onclick=()=>{
   renderDuty();
 };
 
-/* ========= Floating Drag + Lock ========= */
-(function initFloatingDrag(){
-  const fp=$('#floatProg');
-  const handle=$('#fpHandle');
-  let drag=false, startX=0, startY=0, startLeft=0, startBottom=0;
-
-  function onDown(e){
-    if(ls.get('v3_fp_locked', false)) return;
-    drag=true;
-    fp.setPointerCapture?.(e.pointerId);
-    const rect=fp.getBoundingClientRect();
-    startX=e.clientX; startY=e.clientY;
-    startLeft = rect.left;
-    startBottom = (window.innerHeight - rect.bottom);
-  }
-  function onMove(e){
-    if(!drag) return;
-    const dx=e.clientX-startX;
-    const dy=e.clientY-startY;
-
-    let newLeft = startLeft + dx;
-    let newBottom = startBottom - dy;
-
-    const rect=fp.getBoundingClientRect();
-    const maxLeft = window.innerWidth - rect.width - 10;
-    const maxBottom = window.innerHeight - rect.height - 10;
-
-    newLeft = clamp(newLeft, 10, maxLeft);
-    newBottom = clamp(newBottom, 10, maxBottom);
-
-    fp.style.left = newLeft + 'px';
-    fp.style.bottom = newBottom + 'px';
-  }
-  function onUp(){
-    if(!drag) return;
-    drag=false;
-    const rect=fp.getBoundingClientRect();
-    const left = rect.left;
-    const bottom = window.innerHeight - rect.bottom;
-    ls.set('v3_fp_pos', {left:left|0, bottom:bottom|0});
-  }
-
-  handle.addEventListener('pointerdown', onDown);
-  window.addEventListener('pointermove', onMove);
-  window.addEventListener('pointerup', onUp);
-})();
-
-$('#fpLock').onclick=()=> setFPLocked(!ls.get('v3_fp_locked', false));
-$('#fpHide').onclick=()=> setFPHidden(!ls.get('v3_fp_hidden', false));
-
 /* ========= Init ========= */
 function tick(){
   const now=new Date();
@@ -1517,10 +1441,6 @@ function boot(){
   PROJECTOR = ls.get('v3_projector', false);
   applyCompact();
   applyProjector();
-
-  applyFPPosition();
-  setFPLocked(ls.get('v3_fp_locked', false));
-  setFPHidden(ls.get('v3_fp_hidden', false));
 
   tick();
   setInterval(tick, 1000);
