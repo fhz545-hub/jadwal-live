@@ -15,7 +15,8 @@
       --moe-green:#18a27e; --moe-ink:#0f3d33; --light:#f9fefb; --line:#e7f2ee;
       --first:#0fb3b0; --second:#7bc35b; --third:#4a8fff;
       --danger-bg:#fdecec; --danger-border:#f5c2c2; --danger-ink:#8a1f1f;
-      --chip:#f3fbف8; --chip-border:#cfe8e1; --ink:#0b4035;
+      --chip:#f3fbf8;
+ --chip-border:#cfe8e1; --ink:#0b4035;
       --ctl-bg:#ffffff; --ctl-border:#e4efec;
       --duty-accent:#e25353;
     }
@@ -233,11 +234,12 @@
             <h4>مواقيت الحصص (صيفي/شتوي + تحرير يدوي)</h4>
             <div class="row controls" style="grid-template-columns:1fr 1fr 1fr">
               <label>الوضع
-                <select id="seasonMode">
-                  <option value="custom">مخصص</option>
-                  <option value="summer">صيفي</option>
-                  <option value="winter">شتوي</option>
-                </select>
+               <select id="seasonMode">
+  <option value="custom">مخصص</option>
+  <option value="summer">صيفي</option>
+  <option value="winter">شتوي</option>
+  <option value="ramadan">رمضان</option>
+</select>
               </label>
               <button id="applySeason" class="btn-ghost" style="align-self:end">تطبيق الوضع</button>
               <button id="saveTimes" class="btn-ghost" style="align-self:end">حفظ المواقيت</button>
@@ -372,33 +374,114 @@ function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,
 function fmtHijri(d){try{return new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'2-digit',month:'long',year:'numeric'}).format(d)}catch{return fmtDate(d)}}
 
 /* ===== المواقيت ===== */
-const PRESET_SUMMER={assm_s:'06:45',assm_e:'07:00',p1_s:'07:00',p1_e:'07:50',p2_s:'07:50',p2_e:'08:40',p3_s:'08:40',p3_e:'09:30',break_s:'09:30',break_e:'09:55',p4_s:'09:55',p4_e:'10:45',p5_s:'10:45',p5_e:'11:35',p6_s:'11:35',p6_e:'12:25',pr_s:'12:25',pr_e:'12:40',p7_s:'12:40',p7_e:'13:30'};
-const PRESET_WINTER={assm_s:'07:00',assm_e:'07:15',p1_s:'07:15',p1_e:'08:05',p2_s:'08:05',p2_e:'08:55',p3_s:'08:55',p3_e:'09:45',break_s:'09:45',break_e:'10:10',p4_s:'10:10',p4_e:'11:00',p5_s:'11:00',p5_e:'11:50',p6_s:'11:50',p6_e:'12:40',pr_s:'12:40',pr_e:'12:55',p7_s:'12:55',p7_e:'13:45'};
-let TIMES=ls.get('smart_times',PRESET_SUMMER);
+const PRESET_SUMMER={
+  assm_s:'06:45',assm_e:'07:00',
+  p1_s:'07:00',p1_e:'07:50',
+  p2_s:'07:50',p2_e:'08:40',
+  p3_s:'08:40',p3_e:'09:30',
+  break_s:'09:30',break_e:'09:55',
+  p4_s:'09:55',p4_e:'10:45',
+  p5_s:'10:45',p5_e:'11:35',
+  p6_s:'11:35',p6_e:'12:25',
+  pr_s:'12:25',pr_e:'12:40',
+  p7_s:'12:40',p7_e:'13:30'
+};
+
+const PRESET_WINTER={
+  assm_s:'07:00',assm_e:'07:15',
+  p1_s:'07:15',p1_e:'08:05',
+  p2_s:'08:05',p2_e:'08:55',
+  p3_s:'08:55',p3_e:'09:45',
+  break_s:'09:45',break_e:'10:10',
+  p4_s:'10:10',p4_e:'11:00',
+  p5_s:'11:00',p5_e:'11:50',
+  p6_s:'11:50',p6_e:'12:40',
+  pr_s:'12:40',pr_e:'12:55',
+  p7_s:'12:55',p7_e:'13:45'
+};
+
+const PRESET_RAMADAN={
+  // لا طابور (اختياري): بداية الحصة الأولى 09:30 بالضبط
+  assm_s:'09:30',assm_e:'09:30',
+
+  // الحصص (35 دقيقة)
+  p1_s:'09:30',p1_e:'10:05',
+  p2_s:'10:05',p2_e:'10:40',
+  p3_s:'10:40',p3_e:'11:15',
+  p4_s:'11:15',p4_e:'11:50',
+
+  // لا يوجد فسحة
+  break_s:'00:00',break_e:'00:00',
+
+  // صلاة (30 دقيقة) قبل الخامسة
+  pr_s:'11:50',pr_e:'12:20',
+
+  // بعد الصلاة: خامسة/سادسة/سابعة (35 دقيقة)
+  p5_s:'12:20',p5_e:'12:55',
+  p6_s:'12:55',p6_e:'13:30',
+  p7_s:'13:30',p7_e:'14:05'
+};
+
+let TIMES = ls.get('smart_times', PRESET_SUMMER);
+
 function setTimeInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) el.value=TIMES[id]||PRESET_SUMMER[id];});}
 function saveTimesFromInputs(){['assm_s','assm_e','p1_s','p1_e','p2_s','p2_e','p3_s','p3_e','break_s','break_e','p4_s','p4_e','p5_s','p5_e','p6_s','p6_e','pr_s','pr_e','p7_s','p7_e'].forEach(id=>{const el=$(`#t_${id}`); if(el) TIMES[id]=el.value||PRESET_SUMMER[id];}); ls.set('smart_times',TIMES)}
 function parseHM(str){const [h,m]=String(str||'').split(':').map(x=>parseInt(x)); return {h:h||0,m:m||0}}
 function inRangeHM(now,s,e){const x=now.getHours()*60+now.getMinutes(), S=s.h*60+s.m, E=e.h*60+e.m; return x>=S && x<E}
 function hmToMin(s){const [H,M]=String(s||'0:0').split(':').map(Number); return (H||0)*60+(M||0);}
+function minToHM(min){
+  min = Math.max(0, Math.round(min));
+  const h = String(Math.floor(min/60)%24).padStart(2,'0');
+  const m = String(min%60).padStart(2,'0');
+  return `${h}:${m}`;
+}
+
+function minutesUntil(hm, now=new Date()){
+  const [H,M] = String(hm||'0:0').split(':').map(Number);
+  const target = new Date(now);
+  target.setHours(H||0, M||0, 0, 0);
+  return Math.max(0, Math.ceil((target - now)/60000));
+}
+
 
 /* ===== الفواصل / الحصة الحالية ===== */
 function periodNameAr(n){return ['الأولى','الثانية','الثالثة','الرابعة','الخامسة','السادسة','السابعة'][n-1]||''}
 function timeRangeOfPeriod(n){const map={1:['p1_s','p1_e'],2:['p2_s','p2_e'],3:['p3_s','p3_e'],4:['p4_s','p4_e'],5:['p5_s','p5_e'],6:['p6_s','p6_e'],7:['p7_s','p7_e']}; const k=map[n]; if(!k) return ''; return `${TIMES[k[0]]}–${TIMES[k[1]]}`}
 function currentSlot(dayName,now){
-  const t=TIMES; const P=n=>({kind:'period',period:n}); const L=txt=>({kind:txt});
+  const t=TIMES; 
+  const P=n=>({kind:'period',period:n}); 
+  const L=txt=>({kind:txt});
+
+  const hasBreak  = hmToMin(t.break_e) > hmToMin(t.break_s);
+  const hasPrayer = hmToMin(t.pr_e) > hmToMin(t.pr_s);
+  const prayerBeforeP5 = hasPrayer && hmToMin(t.pr_s) < hmToMin(t.p5_s);
+
+  // (إن كان الاصطفاف = نفس الوقت، لن يظهر)
   if(inRangeHM(now,parseHM(t.assm_s),parseHM(t.assm_e))) return L('assembly');
+
   if(inRangeHM(now,parseHM(t.p1_s),parseHM(t.p1_e))) return P(1);
   if(inRangeHM(now,parseHM(t.p2_s),parseHM(t.p2_e))) return P(2);
   if(inRangeHM(now,parseHM(t.p3_s),parseHM(t.p3_e))) return P(3);
-  if(inRangeHM(now,parseHM(t.break_s),parseHM(t.break_e))) return L('break');
+
+  if(hasBreak && inRangeHM(now,parseHM(t.break_s),parseHM(t.break_e))) return L('break');
+
   if(inRangeHM(now,parseHM(t.p4_s),parseHM(t.p4_e))) return P(4);
+
+  // ✅ صلاة قبل الخامسة (رمضان)
+  if(prayerBeforeP5 && inRangeHM(now,parseHM(t.pr_s),parseHM(t.pr_e))) return L('prayer');
+
   if(inRangeHM(now,parseHM(t.p5_s),parseHM(t.p5_e))) return P(5);
   if(inRangeHM(now,parseHM(t.p6_s),parseHM(t.p6_e))) return P(6);
-  if(inRangeHM(now,parseHM(t.pr_s),parseHM(t.pr_e))) return L('prayer');
+
+  // ✅ صلاة بعد السادسة (صيفي/شتوي عند الحاجة)
+  if(!prayerBeforeP5 && hasPrayer && inRangeHM(now,parseHM(t.pr_s),parseHM(t.pr_e))) return L('prayer');
+
   const isSunMon=(dayName==='الأحد'||dayName==='الاثنين');
   if(isSunMon && inRangeHM(now,parseHM(t.p7_s),parseHM(t.p7_e))) return P(7);
-  return L('dismiss'); }
-function minutesUntil(hhmm, now=new Date()){const [H,M]=String(hhmm||'').split(':').map(Number); const end=new Date(now); end.setHours(H||0,M||0,0,0); const diff=Math.ceil((end-now)/60000); return diff<0?0:diff;}
+
+  return L('dismiss');
+}
+
 
 /* ===== لوحات الشعب ===== */
 const CLASSES={
@@ -660,17 +743,41 @@ function ensureDutyFixed(day){
 }
 function currentDutyPhase(now=new Date()){
   const m = now.getHours()*60 + now.getMinutes();
-  const sBreak = hmToMin(TIMES.break_s);
-  const eBreak = hmToMin(TIMES.break_e);
-  const sP6 = hmToMin(TIMES.p6_s);
-  const sP7 = hmToMin(TIMES.p7_s);
-  const depEnd = 13*60 + 45;
-  if(m>=390 && m<420) return {key:'morning', label:'المناوبة الصباحية', start:'06:30', end:'07:00'};
-  if(m>=sBreak && m<eBreak) return {key:'break', label:'إشراف الفسحة', start:TIMES.break_s, end:TIMES.break_e};
-  if(m>=sP6 && m<sP7) return {key:'prayer', label:'إشراف صلاة الظهر', start:TIMES.p6_s, end:TIMES.p7_s};
-  if(m>=sP7 && m<depEnd) return {key:'afternoon', label:'مناوبة الانصراف', start:TIMES.p7_s, end:'13:45'};
+
+  const dayName = dayNameArabicFromDate(now);
+  const isSunMon = (dayName==='الأحد'||dayName==='الاثنين');
+
+  const p1s = hmToMin(TIMES.p1_s);
+  const assmS = hmToMin(TIMES.assm_s);
+
+  // مناوبة صباحية: 30 دقيقة قبل بداية الحصة الأولى (يدعم رمضان تلقائيًا)
+  const morningStart = Math.max(0, assmS - 30);
+  const morningEnd   = p1s;
+
+  const sBreak = hmToMin(TIMES.break_s), eBreak = hmToMin(TIMES.break_e);
+  const hasBreak = eBreak > sBreak;
+
+  const sPr = hmToMin(TIMES.pr_s), ePr = hmToMin(TIMES.pr_e);
+  const hasPrayer = ePr > sPr;
+
+  const lastEnd = isSunMon ? hmToMin(TIMES.p7_e) : hmToMin(TIMES.p6_e);
+  const depEnd  = lastEnd + 15;
+
+  if(m>=morningStart && m<morningEnd) 
+    return {key:'morning', label:'المناوبة الصباحية', start:minToHM(morningStart), end:TIMES.p1_s};
+
+  if(hasBreak && m>=sBreak && m<eBreak) 
+    return {key:'break', label:'إشراف الفسحة', start:TIMES.break_s, end:TIMES.break_e};
+
+  if(hasPrayer && m>=sPr && m<ePr) 
+    return {key:'prayer', label:'إشراف صلاة الظهر', start:TIMES.pr_s, end:TIMES.pr_e};
+
+  if(m>=lastEnd && m<depEnd) 
+    return {key:'afternoon', label:'مناوبة الانصراف', start:isSunMon?TIMES.p7_e:TIMES.p6_e, end:minToHM(depEnd)};
+
   return {key:'other', label:'—', start:'', end:''};
 }
+
 function setDutyPhaseLabel(){
   const ph = currentDutyPhase(new Date());
   $('#phaseLabel').textContent = `${ph.label} ${ph.start && ph.end ? `(${ph.start}–${ph.end})` : ''}`;
@@ -1091,11 +1198,41 @@ function bindUI(){
 
   // مواقيت
   setTimeInputs();
-  $('#applySeason').onclick = ()=>{
-    const m=$('#seasonMode').value;
-    TIMES = (m==='summer')? {...PRESET_SUMMER} : (m==='winter')? {...PRESET_WINTER} : TIMES;
-    setTimeInputs(); ls.set('smart_times',TIMES); updateAll();
-  };
+ function updateTimesUIByMode(mode){
+  const isRamadan = (mode==='ramadan');
+  const bs = $('#t_break_s'), be = $('#t_break_e');
+  if(bs && be){
+    bs.disabled = isRamadan;
+    be.disabled = isRamadan;
+    bs.parentElement.style.opacity = isRamadan ? 0.55 : 1;
+    be.parentElement.style.opacity = isRamadan ? 0.55 : 1;
+  }
+}
+
+const savedMode = ls.get('smart_season_mode','custom');
+if($('#seasonMode')) $('#seasonMode').value = savedMode;
+updateTimesUIByMode(savedMode);
+
+$('#seasonMode').addEventListener('change', e=>{
+  updateTimesUIByMode(e.target.value);
+});
+
+$('#applySeason').onclick = ()=>{
+  const m = $('#seasonMode').value;
+
+  TIMES =
+    (m==='summer')  ? {...PRESET_SUMMER}  :
+    (m==='winter')  ? {...PRESET_WINTER}  :
+    (m==='ramadan') ? {...PRESET_RAMADAN} :
+    TIMES;
+
+  ls.set('smart_season_mode', m);
+  ls.set('smart_times', TIMES);
+  setTimeInputs();
+  updateTimesUIByMode(m);
+  updateAll();
+};
+
   $('#saveTimes').onclick = ()=>{ saveTimesFromInputs(); updateAll(); alert('تم حفظ المواقيت ✔'); };
 
   // دليل المعلمين — استيراد + بحث + عرض
