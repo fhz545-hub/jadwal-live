@@ -371,6 +371,14 @@ const ls = { get(k,d=null){try{return JSON.parse(localStorage.getItem(k))??d}cat
 function toArabicDigits(str){return String(str).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);}
 function dayNameArabicFromDate(dt){return ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][dt.getDay()]||'الأحد'}
 function fmtDate(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),da=String(d.getDate()).padStart(2,'0');return `${da}/${m}/${y}`}
+function normalizeSaudiPhone(raw){
+  let p = String(raw||'').replace(/\D/g,'');
+  if(!p) return '';
+  if(p.startsWith('00966')) p = p.slice(2);       // 00966xxxxxxxxx -> 966xxxxxxxxx
+  if(p.startsWith('05') && p.length === 10) p = '966' + p.slice(1);
+  if(p.startsWith('5') && p.length === 9) p = '966' + p;
+  return p;
+}
 function fmtHijri(d){try{return new Intl.DateTimeFormat('ar-SA-u-ca-islamic',{day:'2-digit',month:'long',year:'numeric'}).format(d)}catch{return fmtDate(d)}}
 
 /* ===== المواقيت ===== */
@@ -676,7 +684,7 @@ function openAbsForm(classId){
     const cover = $cov().value.trim();
     const absent = $abs().value.trim() || 'غير محدد';
     if(!cover) return alert('اختر المعلم المكلّف بالتغطية أولًا.');
-    let phone = String((PHONEBOOK[cover]||{}).phone||'').replace(/[^0-9]/g,'');
+    let phone = normalizeSaudiPhone((PHONEBOOK[cover]||{}).phone||'');
     if(!phone){
       const inp = prompt('لا يوجد رقم لهذا المعلّم.\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):');
       if(!inp) return;
@@ -835,7 +843,7 @@ function renderDutyPanel(day){
     const i=parseInt(btn.dataset.wa); const name=state.names[i];
     if(!name) return alert('أدخل اسم المعلّم أولاً.');
     let rec = PHONEBOOK[name] || {};
-    let phone = String(rec.phone||'').replace(/[^0-9]/g,'');
+    let phone = normalizeSaudiPhone(rec.phone||'');
     if(!phone){
       const inp = prompt('لا يوجد رقم لهذا المعلّم.\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):');
       if(!inp) return;
@@ -859,6 +867,34 @@ function renderDutyPanel(day){
 
 /* ===== المؤشر المتوسط ===== */
 let _lastRem=null;
+let _lastDutyDay = '';
+let _lastDutyPhaseSig = '';
+
+function updateDutyPanelSmart(now){
+  const day = dayNameArabicFromDate(now);
+  const ph = currentDutyPhase(now);
+  const sig = `${ph.key}|${ph.start}|${ph.end}`;
+
+  // إذا المستخدم يكتب داخل لوحة المناوبة: لا نعيد الرسم
+  if (document.querySelector('#dutyPanel input:focus')) {
+    setDutyPhaseLabel();
+    return;
+  }
+
+  // أول مرة أو تغيّر اليوم = إعادة رسم كاملة
+  if (day !== _lastDutyDay) {
+    renderDutyPanel(day);
+    _lastDutyDay = day;
+    _lastDutyPhaseSig = sig;
+    return;
+  }
+
+  // تغيّر المرحلة فقط = يكفي تحديث العنوان
+  if (sig !== _lastDutyPhaseSig) {
+    setDutyPhaseLabel();
+    _lastDutyPhaseSig = sig;
+  }
+}
 function updateMidIndicator(dayName, now){
   const elPhase=$('#mid-phase'), elRange=$('#mid-range'), elFill=$('#batFill'), elNum=$('#mid-num');
   if(!(elPhase&&elRange&&elFill&&elNum)) return;
@@ -1019,11 +1055,19 @@ function parsePhonebookSheet(ws){
   if(hasHeader){
     headerMap = {name:null, phone:null, id:null, spec:null};
     headerRow.forEach((h,idx)=>{
-      if(headerMap.name===null && /الاسم|name/.test(h)) headerMap.name=idx;
-      if(headerMap.phone===null && /الجوال|الهاتف|phone|mobile|رقم/.test(h)) headerMap.phone=idx;
-      if(headerMap.id===null && /الهوية|id|رقم الهوية/.test(h)) headerMap.id=idx;
-      if(headerMap.spec===null && /التخصص|subject|المادة/.test(h)) headerMap.spec=idx;
-    });
+  // الهوية أولاً (حتى لا تُلتقط ضمن "رقم")
+  if(headerMap.id===null && /(رقم\s*الهوية|الهوية|^id$)/.test(h)) headerMap.id=idx;
+
+  // الجوال/الهاتف فقط (بدون التقاط عمود الهوية)
+  if(
+    headerMap.phone===null &&
+    /(رقم\s*الجوال|الجوال|الهاتف|phone|mobile)/.test(h) &&
+    !/هوية/.test(h)
+  ) headerMap.phone=idx;
+
+  if(headerMap.name===null && /(الاسم|name)/.test(h)) headerMap.name=idx;
+  if(headerMap.spec===null && /(التخصص|subject|المادة)/.test(h)) headerMap.spec=idx;
+});
   }
   const startRow = hasHeader?1:0;
   const map={};
@@ -1100,8 +1144,11 @@ document.addEventListener('click', (e)=>{
   closeAllMenus();
 });
 window.addEventListener('resize', ()=>{ if(OPEN_MENU_ID){ const id = Object.keys(MENU_MAP).find(k=>MENU_MAP[k]===OPEN_MENU_ID); if(id) toggleMenu(id); }}, {passive:true});
-
-/* ===== دليل المعلّمين (قائمة واتساب) ===== */
+let _alignTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(_alignTimer);
+  _alignTimer = setTimeout(()=>alignDutyPanelToBands(), 120);
+}, {passive:true});/* ===== دليل المعلّمين (قائمة واتساب) ===== */
 function renderTeacherDirectory(filter=''){
   const list = $('#waList'); const ctn = $('#waCount'); if(!list||!ctn) return;
   const q = String(filter||'').trim().toLowerCase();
@@ -1132,7 +1179,7 @@ function renderTeacherDirectory(filter=''){
     btn.onclick = ()=>{
       const name = btn.dataset.waPerson;
       const rec = PHONEBOOK[name]||{};
-      let phone = String(rec.phone||'').replace(/[^0-9]/g,'');
+      let phone = normalizeSaudiPhone(rec.phone||'');
       if(!phone){
         const inp = prompt(`لا يوجد رقم لـ "${name}".\nأدخل رقم الجوال بصيغة دولية (مثال 9665XXXXXXXX):`);
         if(!inp) return;
@@ -1162,11 +1209,12 @@ function updateClock(){
   updateTiles(day, now);
   updateMidIndicator(day, now);
 
-  if(document.querySelector('#dutyPanel input:focus')){ setDutyPhaseLabel(); }
-  else{ renderDutyPanel(day); }
+updateDutyPanelSmart(now);
 }
 function updateAll(){
   const now=new Date(); const day=dayNameArabicFromDate(now);
+  _lastDutyDay = '';
+  _lastDutyPhaseSig = '';
   renderBands();
   refreshDatalists();
   updateTiles(day, now);
@@ -1270,13 +1318,26 @@ $('#applySeason').onclick = ()=>{
   };
 
   // المناوبة
-  $('#dutySuggest').onclick = ()=>{
-    const day=dayNameArabicFromDate(new Date());
-    const state = ensureDutyFixed(day);
-    const pool = TEACHERS.filter(Boolean);
-    for(let i=0;i<7;i++){ state.names[i]=pool[(Math.random()*pool.length)|0]||''; }
-    ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day);
-  };
+$('#dutySuggest').onclick = ()=>{
+  const day = dayNameArabicFromDate(new Date());
+  const state = ensureDutyFixed(day);
+
+  const pool = [...new Set(TEACHERS.filter(Boolean))];
+  if(!pool.length){
+    alert('لا توجد قائمة معلمين. استورد الجدول أو دفتر المعلمين أولًا.');
+    return;
+  }
+
+  // خلط Fisher-Yates
+  for(let i=pool.length-1; i>0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+
+  state.names = Array.from({length:7}, (_,i)=> pool[i] || '');
+  ls.set('smart_duty_fixed', DUTY_FIXED);
+  renderDutyPanel(day);
+};
   $('#dutySave').onclick=()=>{ ls.set('smart_duty_fixed', DUTY_FIXED); alert('تم حفظ المناوبة ✔'); };
   $('#dutyClear').onclick=()=>{ const day=dayNameArabicFromDate(new Date()); ensureDutyFixed(day).names=Array(7).fill(''); ls.set('smart_duty_fixed', DUTY_FIXED); renderDutyPanel(day); };
 }
